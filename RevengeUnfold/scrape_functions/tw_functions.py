@@ -6,7 +6,6 @@ import os
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
@@ -17,7 +16,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 ############### Local Modules Imports ###############
 from classes.profiles import twitter_profile
 from classes import location, proxy
-from scrape_functions import scraper_error
+from scrape_functions import scraper_error, exceptions
 import generic
 
 # Valori XPATH
@@ -34,6 +33,7 @@ PROFILE_URL = 'https://twitter.com/{}'
 WEBDRIVER_NOT_INITIALIZED = 0
 TOO_MANY_REQUESTS = 3
 NO_PROFILE_PHOTO = 4
+UNEXPECTED_URL_VALUE = 5
 
 # Codici di errore
 WEBDRIVER_GENERIC_ERROR = 400
@@ -80,8 +80,13 @@ class tw_scraper:
         True se l'immagine è stata scaricata, False altrimenti
         '''
         try:
-            urllib.request.urlretrieve(url, os.path.abspath(save_path))
-            return True
+            if url.lower().startswith('http'): # Download only HTTP URLs
+                urllib.request.urlretrieve(url, os.path.abspath(save_path))
+                return True
+            else:
+                ex = exceptions.UnexpectedURLValue('URL {} is not valid'.format(url))
+                self._manage_error(UNEXPECTED_URL_VALUE, ex)
+                return False
         except Exception as ex:
             self._manage_error(DOWNLOAD_IMAGE_ERROR, ex)
             return False
@@ -207,7 +212,8 @@ class tw_scraper:
         tw_profiles = []
 
         if not self.is_initialized:
-            self._manage_error(WEBDRIVER_NOT_INITIALIZED, None)
+            ex = exceptions.WebDriverNotInitialized('The WebDriver is not initialized, please call the init() function')
+            self._manage_error(WEBDRIVER_NOT_INITIALIZED, ex)
             return None
 
         # Compone l'URL da utilizzare per la ricerca
@@ -251,7 +257,8 @@ class tw_scraper:
         '''
 
         if not self.is_initialized:
-            self._manage_error(WEBDRIVER_NOT_INITIALIZED, None)
+            ex = exceptions.WebDriverNotInitialized('The WebDriver is not initialized, please call the init() function')
+            self._manage_error(WEBDRIVER_NOT_INITIALIZED, ex)
             return False
 
         # Naviga sull'immagine profilo
@@ -263,7 +270,8 @@ class tw_scraper:
             profile_image = wait.until(
                 EC.presence_of_element_located((By.XPATH, PROFILE_PHOTO_XPATH)))
         except TimeoutException:
-            self._manage_error(NO_PROFILE_PHOTO, None)
+            ex = exceptions.NoProfilePhoto('The user does not have a profile photo')
+            self._manage_error(NO_PROFILE_PHOTO, ex)
             return False
         except Exception as ex:
             self._manage_error(WEBDRIVER_GENERIC_ERROR, ex)
@@ -289,7 +297,8 @@ class tw_scraper:
         url_images = []
 
         if not self.is_initialized:
-            self._manage_error(WEBDRIVER_NOT_INITIALIZED, None)
+            ex = exceptions.WebDriverNotInitialized('The WebDriver is not initialized, please call the init() function')
+            self._manage_error(WEBDRIVER_NOT_INITIALIZED, ex)
             return False
 
         # Naviga sull'immagine profilo
@@ -300,7 +309,6 @@ class tw_scraper:
             os.makedirs(save_dir)
 
         # Ottiene i link alle immagini
-        wait = WebDriverWait(self._driver, self._timeout)
         url_images_elms = self._driver.find_elements(By.XPATH, LAST_PHOTOS_XPATH)
         url_images = [elm.get_attribute('src') for elm in url_images_elms]
 

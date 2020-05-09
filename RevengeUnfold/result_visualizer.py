@@ -1,6 +1,5 @@
 ############### Standard Imports ###############
 import csv
-import datetime
 from glob import glob
 import os
 import pickle
@@ -8,12 +7,8 @@ import tkinter as tk
 from tkinter import filedialog
 
 ############### External Modules Imports ###############
-from colorama import init
 from termcolor import colored
 from tqdm import tqdm
-
-############### Local Modules Imports ###############
-import generic
 
 def _load_people_profiles(load_dir):
     '''

@@ -1,5 +1,6 @@
 import datetime
 import os
+from itertools import islice
 
 ############### External Modules Imports ###############
 from colorama import init
@@ -16,16 +17,12 @@ def take(n, iterable):
     Return first n items of the iterable as a list
     '''
 
-    from itertools import islice
-
     return list(islice(iterable, n))
 
 
 def select_telegram_group():
     '''
     '''
-
-    from scrape_functions import tg_functions
 
     # Collega il client Telegram
     with tg_functions.connect_telegram_client(password_manager.tg_phone, password_manager.tg_api_id, password_manager.tg_api_hash) as tg_client:

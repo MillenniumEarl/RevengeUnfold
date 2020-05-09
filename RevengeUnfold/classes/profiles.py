@@ -27,27 +27,6 @@ class base_profile:
         self._face_encodings = []
         self._perceptual_hashes = []
 
-    def load(self, save_path):
-        '''
-        Carica un profilo salvato in precedenza
-
-        Params:
-        @save_path: Percorso del file da caricare
-        '''
-
-        with open(save_path, 'rb') as f:
-            self = pickle.load(f)
-
-    def save(self, save_path):
-        '''
-        Salva il profilo su disco
-
-        Params:
-        @save_path: Percorso del file da salvare
-        '''
-        with open(save_path, 'wb') as f:
-            pickle.dump(self, f, protocol=pickle.HIGHEST_PROTOCOL)
-
     def __getstate__(self):
         return self.__dict__
 
@@ -519,7 +498,7 @@ class facebook_profile(base_profile):
             return False  # Se non esiste il profilo corrispondente ai dati indicati ritorna False
         else:
             self = profile
-        return True
+            return True
 
     def download_photos(self, fb_scraper, save_dir):
         '''
@@ -622,7 +601,7 @@ class twitter_profile(base_profile):
             return False  # Se non esiste il profilo corrispondente ai dati indicati ritorna False
         else:
             self = profile
-        return True
+            return True
 
     def download_photos(self, tw_scraper, save_dir):
         '''

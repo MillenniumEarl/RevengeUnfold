@@ -119,7 +119,7 @@ class ig_scraper:
 
         try:
             # Ottiene i profili simili
-            ig_profile.get_similar_accounts()
+            profiles = ig_profile.get_similar_accounts()
             profiles = [profile for profile in profiles]
             if self._logger is not None:
                 self._logger.info(

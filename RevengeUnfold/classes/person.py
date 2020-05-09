@@ -26,12 +26,12 @@ class person:
     def __setstate__(self, d):
         self.__dict__ = d
 
-    def _prepare_search_data(self, custom_keywords = []):
+    def _prepare_search_data(self, custom_keywords = None):
         '''
         Raccogli i dati associati al profilo utente e crea una lista di nomi utente e keywords da usare nella ricerca dei profili
 
         Params:
-        @custom_keywords: Lista di parole chiave aggiuntive da usare nella ricerca
+        @custom_keywords [None]: Lista di parole chiave aggiuntive da usare nella ricerca
 
         Return:
         Dizionario composto da:
@@ -56,6 +56,7 @@ class person:
         keywords_tuple_list = list(set(keywords_tuple_list))  # Rimuove i duplicati
 
         # Unisce le parole chiave aggiungtive in un'unico valore
+        if custom_keywords is None: custom_keywords = []
         extra_keywords = [str(k) for k in custom_keywords]
         extra_keyword = ' '.join(extra_keywords)
 
@@ -208,6 +209,9 @@ class person:
     def find_telegram_profile(self):
         '''
         In base ai dati che possiede ricerca il profilo Telegram della persona
+
+        Return:
+        Valore del match migliore
         '''
 
         print()

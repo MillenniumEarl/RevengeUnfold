@@ -40,13 +40,13 @@
     <Compile Include="result_visualizer.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="scrape_functions\exceptions.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="scrape_functions\scraper_error.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="scrape_functions\tw_functions.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="_download_and_classify_media.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="generic.py" />

@@ -245,39 +245,6 @@ def _load_people_profiles(load_dir):
     return profiles_list
 
 
-def _download_telegram_images(profiles, save_people_dir, image_dir):
-    with tg_functions.connect_telegram_client(password_manager.tg_phone, password_manager.tg_api_id, password_manager.tg_api_hash) as tg_client:
-        for p in tqdm(profiles, colored(
-                '[TELEGRAM]', 'cyan') + ' Download and image processing of Telegram profiles images'):
-            # Se richiesto dall'utente esce dal ciclo (per chiudere il client Telegram aperto con with)
-            # e poi termina il programma
-            if _terminate_program:
-                break
-
-            ps = p.get_profiles('Telegram')
-            if len(ps) == 0:
-                continue
-
-            tg_profile = ps[0]  # L'unico profilo disponibile
-            if tg_profile.is_elaborated:
-                continue
-            _scrape_logger.debug(
-                'Processing username {} (ID {})'.format(
-                    tg_profile.username,
-                    tg_profile.user_id))
-            # Forma i percorsi
-            images_path = os.path.join(_base_dir, 'person_{}_images'.format(str(p.id)), 'telegram_images')
-            if not os.path.exists(images_path): os.makedirs(images_path)
-            save_path = os.path.join(save_people_dir, '{}.person'.format(p.id))
-
-            # Scarica ed elabora le immagini
-            tg_profile.download_profile_photos(images_path, tg_client)
-            tg_profile.elaborate_images(images_path, tg_client)
-
-            # Salva i dati
-            pickle.dump(p, open(save_path, 'wb'), protocol=pickle.HIGHEST_PROTOCOL)
-
-
 def _select_work_dir():
     '''
     Lascia selezionare all'utente la cartella di lavoro da utilizzare

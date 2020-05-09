@@ -22,7 +22,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 ############### Local Modules Imports ###############
 from classes.profiles import facebook_profile
 from classes import phone, location, proxy
-from scrape_functions import scraper_error
+from scrape_functions import scraper_error, exceptions
 import generic
 
 # XPATH const
@@ -80,22 +80,6 @@ SLEEP_TIME_SHORT = 0.5
 REQUEST_LIMIT_MODIFIER = 0.5
 SESSION_FILE_NAME = 'session.fb_scraper'
 
-# Exception definition
-class WebDriverNotInitialized(Exception):
-    pass
-
-class UserNotLogged(Exception):
-    pass
-
-class FacebookAccountBlocked(Exception):
-    pass
-
-class TooManyRequests(Exception):
-    pass
-
-class NoProfilePhoto(Exception):
-    pass
-
 class fb_scraper:
     '''
     Classe che rappresenta un'istanza di WebDriver e permette lo scraping di un profilo Facebook
@@ -122,7 +106,7 @@ class fb_scraper:
         wait = WebDriverWait(self._driver, self._timeout)
 
         try:
-            link_blocked_alert = wait.until(EC.element_to_be_clickable((By.XPATH, BANNED_LINK_ALERT)))
+            wait.until(EC.element_to_be_clickable((By.XPATH, BANNED_LINK_ALERT)))
             self.is_blocked = True
             return True
         except TimeoutException as ex:
@@ -190,7 +174,7 @@ class fb_scraper:
 
             # Ottiene il numero di secondi da attendere
             resume_time = datetime.datetime.now() + datetime.timedelta(seconds=wait_delta_sec)
-            ex = TooManyRequests('Too many requests, need to wait {:.2f} seconds, until {} ({} requests in {} seconds)'.format(
+            ex = exceptions.TooManyRequests('Too many requests, need to wait {:.2f} seconds, until {} ({} requests in {} seconds)'.format(
                 wait_delta_sec,
                 resume_time.strftime('%d/%m/%y %H:%M:%S'),
                 self._requests,
@@ -212,9 +196,13 @@ class fb_scraper:
         True se l'immagine è stata scaricata, False altrimenti
         '''
         try:
-            urllib.request.urlretrieve(url, os.path.abspath(save_path))
-            self._request_manager()
-            return True
+            if url.lower().startswith('http'): # Download only HTTP URLs
+                urllib.request.urlretrieve(url, os.path.abspath(save_path))
+                return True
+            else:
+                ex = exceptions.UnexpectedURLValue('URL {} is not valid'.format(url))
+                self._manage_error(UNEXPECTED_URL_VALUE, ex)
+                return False
         except Exception as ex:
             self._manage_error(DOWNLOAD_IMAGE_ERROR, ex)
             return False
@@ -290,7 +278,7 @@ class fb_scraper:
 
         # Bisogna essere loggati per cercare gli utenti
         if not self.is_logged:
-            ex = UserNotLogged('In order to use this function the user need to be logged to Facebook')
+            ex = exceptions.UserNotLogged('In order to use this function the user need to be logged to Facebook')
             self._manage_error(USER_NOT_LOGGED, ex)
             return False
 
@@ -401,7 +389,7 @@ class fb_scraper:
 
         # Se il driver non è inizializzato esce
         if not self.is_initialized:
-            ex = WebDriverNotInitialized('The WebDriver is not initialized, please call the init_scraper() function')
+            ex = exceptions.WebDriverNotInitialized('The WebDriver is not initialized, please call the init_scraper() function')
             self._manage_error(WEBDRIVER_NOT_INITIALIZED, ex)
             return False
 
@@ -482,7 +470,7 @@ class fb_scraper:
 
         # Bisogna essere loggati per cercare gli utenti
         if not self.is_logged:
-            ex = UserNotLogged('In order to use this function the user need to be logged to Facebook')
+            ex = exceptions.UserNotLogged('In order to use this function the user need to be logged to Facebook')
             self._manage_error(USER_NOT_LOGGED, ex)
             return None
 
@@ -505,7 +493,7 @@ class fb_scraper:
 
         # Verifica che l'account non sia stato bloccato
         if self._is_blocked():
-            ex = FacebookAccountBlocked('The account has been blocked, you may have to wait for a day to use your account. The client will now be closed')
+            ex = exceptions.FacebookAccountBlocked('The account has been blocked, you may have to wait for a day to use your account. The client will now be closed')
             self._manage_error(ACCOUNT_BLOCKED, ex)
             return None
 
@@ -572,7 +560,7 @@ class fb_scraper:
 
         # Bisogna essere loggati per cercare gli utenti
         if not self.is_logged:
-            ex = UserNotLogged('In order to use this function the user need to be logged to Facebook')
+            ex = exceptions.UserNotLogged('In order to use this function the user need to be logged to Facebook')
             self._manage_error(USER_NOT_LOGGED, ex)
             return []
 
@@ -649,7 +637,7 @@ class fb_scraper:
 
         # Bisogna essere loggati per scaricare le immagini
         if not self.is_logged:
-            ex = UserNotLogged('In order to use this function the user need to be logged to Facebook')
+            ex = exceptions.UserNotLogged('In order to use this function the user need to be logged to Facebook')
             self._manage_error(USER_NOT_LOGGED, ex)
             return False
 
@@ -665,7 +653,7 @@ class fb_scraper:
                 EC.element_to_be_clickable(
                     (By.CLASS_NAME, PROFILE_PHOTO_CLASSNAME)))
         except TimeoutException:
-            ex = NoProfilePhoto('The user does not have a profile photo')
+            ex = exceptions.NoProfilePhoto('The user does not have a profile photo')
             self._manage_error(NO_PROFILE_PHOTO, ex)
             return False
         except Exception as ex:
@@ -698,7 +686,7 @@ class fb_scraper:
 
         # Bisogna essere loggati per scaricare le immagini
         if not self.is_logged:
-            ex = UserNotLogged('In order to use this function the user need to be logged to Facebook')
+            ex = exceptions.UserNotLogged('In order to use this function the user need to be logged to Facebook')
             self._manage_error(USER_NOT_LOGGED, ex)
             return False
 

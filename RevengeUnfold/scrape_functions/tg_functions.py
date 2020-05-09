@@ -44,7 +44,7 @@ def check_username_existance(tg_client, username):
             username=username
         ))
         return result
-    except UsernameInvalidError as ex:  # Nessun utente ha questo username
+    except UsernameInvalidError:  # Nessun utente ha questo username
         return False
 
 
@@ -57,10 +57,9 @@ def get_profiles(tg_client, value):
 
     try:
         result = tg_client(functions.help.GetUserInfoRequest(
-            user_id=value
-        ))
+            user_id=value))
         return result
-    except UserInvalidError as ex:  # Nessun utente ha username o user id specificato
+    except UserInvalidError:  # Nessun utente ha username o user id specificato
         return None
 
 
@@ -202,9 +201,9 @@ def get_group_channel_members(tg_client, conversation):
     return all_participants
 
 
-def download_media_from_conversation(
-        tg_client, conversation, save_dir, message_limit=3000):
+def download_media_from_conversation(tg_client, conversation, save_dir, message_limit=3000):
     '''
+    DON'T USE THIS
     '''
 
     import os
