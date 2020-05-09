@@ -37,6 +37,7 @@ This will then allow the installation of dlib from the application requirements.
 _Note_: It may take a long time
 
 This application has been successfully tested with Python 3.8.2 on Windows 10 1909 (build 18363.778)
+Developed with Visual Studio Community 2019 16.5.4
 ### Configure Telegram
 The application uses [Telethon which](https://github.com/LonamiWebs/Telethon), in order to function, requires access to the Telegram API, configurable by following [these](https://core.telegram.org/api/obtaining_api_id) indications. Once this is done we will need:
 - API ID
