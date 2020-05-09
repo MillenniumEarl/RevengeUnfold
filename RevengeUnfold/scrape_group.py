@@ -262,7 +262,7 @@ def _select_work_dir():
 
     selected_dir = filedialog.askdirectory()
 
-    print(colored('[SYSTEM]', 'green') + ' Selected directory: {}'.format(dir))
+    print(colored('[SYSTEM]', 'green') + ' Selected directory: {}'.format(selected_dir))
 
     return selected_dir
 
