@@ -197,8 +197,6 @@ def download_media_from_conversation(tg_client, conversation, save_dir, message_
     DON'T USE THIS
     '''
 
-    import os
-
     for message in tg_client.iter_messages(conversation, limit=message_limit):
         if message.media is not None:
             path = message.download_media(file=os.path.abspath('test'))

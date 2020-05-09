@@ -39,7 +39,7 @@ def _end_program():
     exit(0)
 
 
-def _keyboard_interrupt_handler(signal, frame):  # noeq
+def _keyboard_interrupt_handler(rcv_signal, frame):  # noeq
     print('\n' +
           colored(
               '[SYSTEM]',

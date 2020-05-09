@@ -20,13 +20,13 @@ class location:
 
         # Ottiene le informazioni dato un indirizzo/nome
         geolocator = Nominatim(user_agent='RevengeUnfold')
-        location = geolocator.geocode(name)
+        reverse_location = geolocator.geocode(name)
 
         # Salva i dati
-        self.name = location.address
-        self.latitude = location.latitude
-        self.longitude = location.longitude
-        self.altitude = location.altitude
+        self.name = reverse_location.address
+        self.latitude = reverse_location.latitude
+        self.longitude = reverse_location.longitude
+        self.altitude = reverse_location.altitude
         self.time = time_relevation
 
     def from_coordinates(self, latitude, longitude, time_relevation=None):
@@ -41,11 +41,11 @@ class location:
 
         # Ottiene le informazioni date le coordinate
         geolocator = Nominatim(user_agent='RevengeUnfold')
-        location = geolocator.reverse('{}, {}'.format(latitude, longitude))
+        reverse_location = geolocator.reverse('{}, {}'.format(latitude, longitude))
 
         # Salva i dati
-        self.name = location.address
-        self.latitude = location.latitude
-        self.longitude = location.longitude
-        self.altitude = location.altitude
+        self.name = reverse_location.address
+        self.latitude = reverse_location.latitude
+        self.longitude = reverse_location.longitude
+        self.altitude = reverse_location.altitude
         self.time = time_relevation

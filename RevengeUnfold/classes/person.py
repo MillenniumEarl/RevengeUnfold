@@ -247,8 +247,7 @@ class person:
                 possibile_profiles.extend(ig_profiles)
 
         # Filtra profili (ricerche ridondanti)
-        possibile_profiles = list(
-            set([p for p in possibile_profiles if p is not None]))
+        possibile_profiles = list({p for p in possibile_profiles if p is not None}) # Set comprehension
 
         # Una volta individuati i possibili profili li converte negli oggetti
         # profiles.instagram_profile e li preprara per il confronto.
@@ -306,8 +305,7 @@ class person:
             possibile_profiles.extend(ps)
 
         # Filtra profili (ricerche ridondanti)
-        possibile_profiles = list(
-            set([p for p in possibile_profiles if p is not None]))
+        possibile_profiles = list({p for p in possibile_profiles if p is not None}) # Set comprehension
 
         # I profili vengono preparati per il confronto
         # Nel loop esegue anche il confronto tra i possibili profili Facebook e i profili già presenti per il profilo.
@@ -364,8 +362,7 @@ class person:
                 possibile_profiles.extend(tw_profiles)
 
         # Filtra profili (ricerche ridondanti)
-        possibile_profiles = list(
-            set([p for p in possibile_profiles if p is not None]))
+        possibile_profiles = list({p for p in possibile_profiles if p is not None}) # Set comprehension
 
         # Una volta individuati i possibili profili li converte negli oggetti
         # profiles.instagram_profile e li preprara per il confronto.
