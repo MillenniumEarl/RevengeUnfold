@@ -77,10 +77,10 @@ The project contains both the individual modules for platform scraping and the a
 - __Instagram__: Instagram scraping is based on [instaloader](https://github.com/instaloader/instaloader) which implements its own internal method to manage requests. Do not force this system by closing and reopening the program in case of waiting!
 
 ## TODO
-[] Rewrite code for `tg_scraper`
-[] Convert comments from Italian to English
-[] Add missing comments
-[] Clenup code
+[ ] Rewrite code for `tg_scraper`
+[ ] Convert comments from Italian to English
+[ ] Add missing comments
+[ ] Clenup code
 
 ## I need your help!
 This is the first public project that I develop and I have tried to make the code as comprehensible as possible. If anyone wants to modify, optimize or improve the code, they are welcome!
