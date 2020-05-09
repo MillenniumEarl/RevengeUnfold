@@ -39,10 +39,10 @@ _Note_: It may take a long time
 This application has been successfully tested with Python 3.8.2 on Windows 10 1909 (build 18363.778)
 Developed with Visual Studio Community 2019 16.5.4
 ### Configure Telegram
-The application uses [Telethon which](https://github.com/LonamiWebs/Telethon), in order to function, requires access to the Telegram API, configurable by following [these](https://core.telegram.org/api/obtaining_api_id) indications. Once this is done we will need:
+The application uses [Telethon](https://github.com/LonamiWebs/Telethon) which, in order to function, requires access to the Telegram API, configurable by following [these](https://core.telegram.org/api/obtaining_api_id) indications. Once this is done we will need:
 - API ID
 - API Hash
-- Telephone number (international format '+1 234 567 8900')
+- Telephone number (international format +1 234 567 8900)
 ### Set credentials
 To use the application you need the following data, written in an INI file called `credentials.ini` and located in the __same execution folder of the program__ (together with `main.py`):
 ```
