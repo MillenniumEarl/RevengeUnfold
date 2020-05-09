@@ -76,6 +76,12 @@ The project contains both the individual modules for platform scraping and the a
   - _For developers_: I set a limit of Facebook pages visited/requests for images equal to 200 requests per hour, with an automatic waiting system. The blockage comes the same but after a long time. To prevent the program from being closed and reopened in the event of a wait (which could lead to an account ban), a `session.fb_scraper` file is saved which saves data on requests made.
 - __Instagram__: Instagram scraping is based on [instaloader](https://github.com/instaloader/instaloader) which implements its own internal method to manage requests. Do not force this system by closing and reopening the program in case of waiting!
 
+## TODO
+[] Rewrite code for `tg_scraper`
+[] Convert comments from Italian to English
+[] Add missing comments
+[] Clenup code
+
 ## I need your help!
 This is the first public project that I develop and I have tried to make the code as comprehensible as possible. If anyone wants to modify, optimize or improve the code, they are welcome!
 I also realize that the project is relatively vast and touches several platforms. I do not guarantee it but I will try, in my spare time from university, to write a wiki documenting the code. 
