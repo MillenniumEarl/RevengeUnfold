@@ -45,6 +45,9 @@ The application uses [Telethon](https://github.com/LonamiWebs/Telethon) which, i
 - API ID
 - API Hash
 - Telephone number (international format +1 234 567 8900)
+
+Remember to join (in the Telegram app) the group you want to analyze!
+
 ### Set credentials
 To use the application you need the following data, written in an INI file called `credentials.ini` and located in the __same execution folder of the program__ (together with `main.py`):
 ```
@@ -80,6 +83,7 @@ The project contains both the individual modules for platform scraping and the a
 - [ ] Rewrite code for `tg_scraper`
 - [ ] Convert comments from Italian to English
 - [ ] Add missing comments
+- [ ] Complete `scrape_attack.py` (Phishing code) 
 - [ ] Clenup code
 
 ## I need your help!
