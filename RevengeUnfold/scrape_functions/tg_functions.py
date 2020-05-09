@@ -146,9 +146,9 @@ def get_all_conversations(tg_client, only_groups=False,
     # Separa gruppi da canali e conversazioni private
     for chat in chats:
         try:
-            if chat.megagroup == True:
+            if chat.megagroup is True:
                 return_values.append((chat, 0))  # Gruppi
-            elif chat.broadcast == True:
+            elif chat.broadcast is True:
                 return_values.append((chat, 1))  # Canali
             else:
                 return_values.append((chat, 2))  # Chat private

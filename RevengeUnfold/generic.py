@@ -31,18 +31,18 @@ def only_ASCII(s):
     return s
 
 
-def list_to_chunks(list, n):
+def list_to_chunks(lst, n):
     '''
     Divide una lista in liste da n parti ciascuna
 
     Params:
-    @list: Lista da dividere
+    @lst: Lista da dividere
     @n: Numero di elementi per sottolista
 
     Return:
     Lista di liste
     '''
-    for i in range(0, len(list), n):
+    for i in range(0, len(lst), n):
         yield list[i:i + n]
 
 

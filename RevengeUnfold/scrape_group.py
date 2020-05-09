@@ -260,11 +260,11 @@ def _select_work_dir():
     print(colored('[SYSTEM]', 'green') + ' Press a key to select the work directory', end='')
     input()
 
-    dir = filedialog.askdirectory()
+    selected_dir = filedialog.askdirectory()
 
     print(colored('[SYSTEM]', 'green') + ' Selected directory: {}'.format(dir))
 
-    return dir
+    return selected_dir
 
 ############### Scraping Functions Definition ###############
 

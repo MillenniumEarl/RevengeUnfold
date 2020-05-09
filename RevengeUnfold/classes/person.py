@@ -10,8 +10,8 @@ MIN_MATCH_THREESHOLD = 5
 
 
 class person:
-    def __init__(self, id):
-        self.id = id
+    def __init__(self, person_id):
+        self.id = person_id
         self.first_name = None
         self.last_name = None
         self.phones = []
@@ -172,10 +172,10 @@ class person:
         self.face_encodings.extend(profile._face_encodings)
 
         # Aggiunge gli hash delle nuove immagini
-        for cmp_hash in profile._perceptual_hashes:
-            for hash in self.perceptual_hashes:
-                if photohash.hashes_are_similar(hash, cmp_hash):
-                    self.perceptual_hashes.append(cmp_hash)
+        for new_hash in profile._perceptual_hashes:
+            for cmp_hash in self.perceptual_hashes:
+                if photohash.hashes_are_similar(cmp_hash, new_hash):
+                    self.perceptual_hashes.append(new_hash)
                     break
 
         # Ordina la lista dalla locazione più recente a quella meno recente
