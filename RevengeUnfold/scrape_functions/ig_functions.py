@@ -339,15 +339,14 @@ class ig_scraper:
         if self.is_initialized:
             self.terminate()
 
-        if self._connect_instagram_client('', '', anonymous=True):
-            self.is_initialized = True
-            if self._logger is not None:
-                self._logger.info(
-                    'Client Instagram anonimo instanziato correttamente')
-            return True
-        else:
+        if not self._connect_instagram_client('', '', anonymous=True):
             return False
 
+        self.is_initialized = True
+        if self._logger is not None:
+            self._logger.info('Anonymous Instagram client instanced correctly')
+        return True
+        
     def login(self, username, password):
         '''
         Esegue il login a Instagram usando le credenziali

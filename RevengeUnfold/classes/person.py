@@ -273,8 +273,7 @@ class person:
         if best_profile is not None:
             self.add_profile(best_profile)
             return best_match
-        else:
-            return 0
+        return 0
 
     def find_facebook_profile(self, fb_scraper, *custom_keywords):
         '''
@@ -328,8 +327,7 @@ class person:
         if best_profile is not None:
             self.add_profile(best_profile)
             return best_match
-        else:
-            return 0
+        return 0
 
     def find_twitter_profile(self, tw_scraper, *custom_keywords):
         '''
@@ -381,10 +379,8 @@ class person:
                 best_match = tot_match
                 best_profile = twp
 
-        # Una volta terminati i confronti si aggiunge il profilo migliore (se è
-        # stato trovato)
+        # Una volta terminati i confronti si aggiunge il profilo migliore (se è stato trovato)
         if best_profile is not None:
             self.add_profile(best_profile)
             return best_match
-        else:
-            return 0
+        return 0

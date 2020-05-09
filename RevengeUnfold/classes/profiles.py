@@ -236,12 +236,10 @@ class telegram_profile(base_profile):
             with tg_functions.connect_telegram_client(password_manager.tg_phone, password_manager.tg_api_id, password_manager.tg_api_hash) as tg_client_internal:
                 profile = tg_functions.get_profiles(
                     tg_client_internal, username)
-        else:
-            profile = tg_functions.get_profiles(tg_client, username)
-        if profile is None:
-            return False  # Se non esiste il profilo corrispondente ai dati indicati ritorna False
-        else:
-            self.get_profile_from_tg_profile(profile)
+        else: profile = tg_functions.get_profiles(tg_client, username)
+        if profile is None: return False  # Se non esiste il profilo corrispondente ai dati indicati ritorna False
+        
+        self.get_profile_from_tg_profile(profile)
         return True
 
     def download_profile_photos(self, save_dir, tg_client=None):
@@ -259,7 +257,7 @@ class telegram_profile(base_profile):
 
         if self._tg_profile is None:
             if self.user_id is None: return False
-            else: self.get_profile_from_userid(self.user_id, tg_client)
+            self.get_profile_from_userid(self.user_id, tg_client)
 
         # Crea la cartella se non esiste
         save_dir = os.path.abspath(save_dir)
@@ -387,10 +385,8 @@ class instagram_profile(base_profile):
         '''
 
         if self._ig_profile is None:
-            if self.username is None:
-                return False
-            else:
-                self.get_profile_from_username(ig_scraper, self.username)
+            if self.username is None: return False
+            self.get_profile_from_username(ig_scraper, self.username)
 
         # Crea la cartella se non esiste
         if not os.path.exists(save_dir):
@@ -491,11 +487,11 @@ class facebook_profile(base_profile):
         # Cerca il profilo su Facebook
         profile = fb_scraper.find_user_by_username(username)
 
-        if profile is None:
-            return False  # Se non esiste il profilo corrispondente ai dati indicati ritorna False
-        else:
-            self = profile
-            return True
+        if profile is None: return False  # Se non esiste il profilo corrispondente ai dati indicati ritorna False
+        
+        # Aggiorna il profilo
+        self.__dict__.update(profile.__dict__)
+        return True
 
     def download_photos(self, fb_scraper, save_dir):
         '''
@@ -594,11 +590,11 @@ class twitter_profile(base_profile):
         # Cerca il profilo su Twtter
         profile = tw_scraper.find_user_by_username(username)
 
-        if profile is None:
-            return False  # Se non esiste il profilo corrispondente ai dati indicati ritorna False
-        else:
-            self = profile
-            return True
+        if profile is None: return False  # Se non esiste il profilo corrispondente ai dati indicati ritorna False
+        
+        # Aggiorna il profilo
+        self.__dict__.update(profile.__dict__)
+        return True     
 
     def download_photos(self, tw_scraper, save_dir):
         '''
