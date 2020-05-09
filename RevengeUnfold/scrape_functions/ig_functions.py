@@ -128,7 +128,7 @@ class ig_scraper:
 
             return profiles
         except Exception as ex:
-            self._manage_error(GENERIC_ERROR, ex)
+            self._manage_error(WEBDRIVER_GENERIC_ERROR, ex)
             return []
 
     def find_user_by_username(self, username):
@@ -153,7 +153,7 @@ class ig_scraper:
             self._manage_error(PROFILE_NOT_EXISTS, ex)
             return None
         except Exception as ex:
-            self._manage_error(GENERIC_ERROR, ex)
+            self._manage_error(WEBDRIVER_GENERIC_ERROR, ex)
             return None
 
     def find_user_by_keywords(self, *keywords, max_profiles = 10):
@@ -190,7 +190,7 @@ class ig_scraper:
                         len(profiles), generic.only_ASCII(keyword)))
             return profiles
         except Exception as ex:
-            self._manage_error(GENERIC_ERROR, ex)
+            self._manage_error(WEBDRIVER_GENERIC_ERROR, ex)
             return []
 
     def download_post_images(self, ig_profile, save_dir, max_posts=20):
@@ -213,7 +213,7 @@ class ig_scraper:
             self._manage_error(PRIVATE_PROFILE_NOT_FOLLOWED, ex)
             return False
         except Exception as ex:
-            self._manage_error(GENERIC_ERROR, ex)
+            self._manage_error(WEBDRIVER_GENERIC_ERROR, ex)
             return False
 
         # Elimina i video dai post
@@ -286,7 +286,7 @@ class ig_scraper:
             self._manage_error(PRIVATE_PROFILE_NOT_FOLLOWED, ex)
             return []
         except Exception as ex:
-            self._manage_error(GENERIC_ERROR, ex)
+            self._manage_error(WEBDRIVER_GENERIC_ERROR, ex)
             return []
 
         # Salva i geotag dei media selezionati

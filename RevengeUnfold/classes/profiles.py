@@ -259,10 +259,8 @@ class telegram_profile(base_profile):
         '''
 
         if self._tg_profile is None:
-            if self.user_id is None:
-                return False
-            else:
-                self.get_profile_from_userid(user_id, tg_client)
+            if self.user_id is None: return False
+            else: self.get_profile_from_userid(self.user_id, tg_client)
 
         # Crea la cartella se non esiste
         save_dir = os.path.abspath(save_dir)
@@ -368,7 +366,7 @@ class instagram_profile(base_profile):
         '''
 
         # Cerca il profilo su Instagram
-        profile = ig_scraper.find_user_by_username(ig_client, username)
+        profile = ig_scraper.find_user_by_username(username)
 
         if profile is None:
             return False  # Se non esiste il profilo corrispondente ai dati indicati ritorna False

@@ -1,3 +1,10 @@
+import os
+from telethon.sync import TelegramClient
+from telethon.errors import UsernameInvalidError, UserInvalidError, ChatAdminRequiredError
+from telethon.tl.functions.messages import GetDialogsRequest
+from telethon.tl.types import InputPeerEmpty
+from telethon import functions
+
 def connect_telegram_client(phone_number, api_id, api_hash):
     '''
     Crea un client e lo connette a Telegram.
@@ -11,9 +18,6 @@ def connect_telegram_client(phone_number, api_id, api_hash):
     @return:
     Client connesso e autenticato a Telegram
     '''
-
-    # Importazione moduli
-    from telethon.sync import TelegramClient
 
     # Crea il client Telegram
     client = TelegramClient(phone_number, api_id, api_hash)
@@ -37,8 +41,6 @@ def check_username_existance(tg_client, username):
     Controlla se il nome utente specificato esiste
     '''
 
-    from telethon.errors import UsernameInvalidError
-
     try:
         result = tg_client(functions.account.CheckUsernameRequest(
             username=username
@@ -53,11 +55,8 @@ def get_profiles(tg_client, value):
     Ottiene il profilo Telegram utilizzando username o user id
     '''
 
-    from telethon.errors import UserInvalidError
-
     try:
-        result = tg_client(functions.help.GetUserInfoRequest(
-            user_id=value))
+        result = tg_client(functions.help.GetUserInfoRequest(user_id=value))
         return result
     except UserInvalidError:  # Nessun utente ha username o user id specificato
         return None
@@ -73,8 +72,6 @@ def download_users_profile_photos(tg_client, tg_profile, save_dir):
     @tg_profile: Profilo da cui scaricare le immagini
     @save_dir: Directory di salvataggio delle immagini
     '''
-
-    import os
 
     # Crea una cartella che conterrà le immagini di profilo
     if not os.path.exists(save_dir):
@@ -132,10 +129,6 @@ def get_all_conversations(tg_client, only_groups=False,
     una chat privata (chat, 2) o una conversazione non identificabile (?, 3)
     '''
 
-    # Importaziomne moduli
-    from telethon.tl.functions.messages import GetDialogsRequest
-    from telethon.tl.types import InputPeerEmpty
-
     # Variabili locali
     chats = []
     return_values = []
@@ -184,8 +177,6 @@ def get_group_channel_members(tg_client, conversation):
     Lista di profili Telegram iscritti al gruppo
     '''
 
-    from telethon.errors import ChatAdminRequiredError
-
     # Variabili locali
     all_participants = []
 
@@ -208,7 +199,7 @@ def download_media_from_conversation(tg_client, conversation, save_dir, message_
 
     import os
 
-    for message in tg_client.iter_messages(tg_group, limit=message_limit):
+    for message in tg_client.iter_messages(conversation, limit=message_limit):
         if message.media is not None:
             path = message.download_media(file=os.path.abspath('test'))
             yield path

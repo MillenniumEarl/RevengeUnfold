@@ -286,7 +286,7 @@ def _scrape_telegram(people, save_people_dir, image_dir):
 
     # Elabora solo i profili non ancora elaborati
     for p in people:
-        ps = profile.get_profiles('Telegram')
+        ps = p.get_profiles('Telegram')
         for tg_profile in ps:
             if not tg_profile.is_elaborated:
                 tg_profiles_list.append(tg_profile)
