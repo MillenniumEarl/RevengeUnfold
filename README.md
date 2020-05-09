@@ -1,4 +1,6 @@
 # RevengeUnfold
+[![DeepSource](https://static.deepsource.io/deepsource-badge-light-mini.svg)](https://deepsource.io/gh/MillenniumEarl/RevengeUnfold/?ref=repository-badge)
+
 At the beginning of April 2020, a network of Telegram groups and channels [was discovered in Italy](https://www.repubblica.it/tecnologia/social-network/2020/04/04/news/revenge_porn_e_pedopornografia_telegram_e_diventato_il_far_west_dell_abuso_su_ex_partner_e_minori-253126954/), with about 50,000 members, who shared child pornography and intimate photos/videos of former partners (RevengePorn).
 
 This network, reported to law enforcement by more and more people, saw the entry into the field of LulzSecIta and Anonymous Italy in an attempt to stem the problem and identify the main perpetrators. During the _#RevengeGram_ operation, carried out by the two collectives (assisted by other minor groups), dozens of participants from the main groups of the network were traced.
@@ -39,10 +41,13 @@ _Note_: It may take a long time
 This application has been successfully tested with Python 3.8.2 on Windows 10 1909 (build 18363.778)
 Developed with Visual Studio Community 2019 16.5.4
 ### Configure Telegram
-The application uses [Telethon which](https://github.com/LonamiWebs/Telethon), in order to function, requires access to the Telegram API, configurable by following [these](https://core.telegram.org/api/obtaining_api_id) indications. Once this is done we will need:
+The application uses [Telethon](https://github.com/LonamiWebs/Telethon) which, in order to function, requires access to the Telegram API, configurable by following [these](https://core.telegram.org/api/obtaining_api_id) indications. Once this is done we will need:
 - API ID
 - API Hash
-- Telephone number (international format '+1 234 567 8900')
+- Telephone number (international format +1 234 567 8900)
+
+Remember to join (in the Telegram app) the group you want to analyze!
+
 ### Set credentials
 To use the application you need the following data, written in an INI file called `credentials.ini` and located in the __same execution folder of the program__ (together with `main.py`):
 ```
@@ -73,6 +78,13 @@ The project contains both the individual modules for platform scraping and the a
     - __Tip: do not use this option__: If you are using a profile with no associated phone number and you are blocked, you will need to request the unlock of the account by __sending a photo of a document that verifies your identity__. This procedure will be done manually so it may take some time and in the meantime you won't be able to use Facebook. Fantastic.
   - _For developers_: I set a limit of Facebook pages visited/requests for images equal to 200 requests per hour, with an automatic waiting system. The blockage comes the same but after a long time. To prevent the program from being closed and reopened in the event of a wait (which could lead to an account ban), a `session.fb_scraper` file is saved which saves data on requests made.
 - __Instagram__: Instagram scraping is based on [instaloader](https://github.com/instaloader/instaloader) which implements its own internal method to manage requests. Do not force this system by closing and reopening the program in case of waiting!
+
+## TODO
+- [ ] Rewrite code for `tg_scraper`
+- [ ] Convert comments from Italian to English
+- [ ] Add missing comments
+- [ ] Complete `scrape_attack.py` (Phishing code) 
+- [ ] Clenup code
 
 ## I need your help!
 This is the first public project that I develop and I have tried to make the code as comprehensible as possible. If anyone wants to modify, optimize or improve the code, they are welcome!
