@@ -10,8 +10,8 @@ MIN_MATCH_THREESHOLD = 5
 
 
 class person:
-    def __init__(self, id):
-        self.id = id
+    def __init__(self, person_id):
+        self.id = person_id
         self.first_name = None
         self.last_name = None
         self.phones = []
@@ -172,10 +172,10 @@ class person:
         self.face_encodings.extend(profile._face_encodings)
 
         # Aggiunge gli hash delle nuove immagini
-        for cmp_hash in profile._perceptual_hashes:
-            for hash in self.perceptual_hashes:
-                if photohash.hashes_are_similar(hash, cmp_hash):
-                    self.perceptual_hashes.append(cmp_hash)
+        for new_hash in profile._perceptual_hashes:
+            for cmp_hash in self.perceptual_hashes:
+                if photohash.hashes_are_similar(cmp_hash, new_hash):
+                    self.perceptual_hashes.append(new_hash)
                     break
 
         # Ordina la lista dalla locazione più recente a quella meno recente
@@ -247,8 +247,7 @@ class person:
                 possibile_profiles.extend(ig_profiles)
 
         # Filtra profili (ricerche ridondanti)
-        possibile_profiles = list(
-            set([p for p in possibile_profiles if p is not None]))
+        possibile_profiles = list({p for p in possibile_profiles if p is not None}) # Set comprehension
 
         # Una volta individuati i possibili profili li converte negli oggetti
         # profiles.instagram_profile e li preprara per il confronto.
@@ -274,8 +273,7 @@ class person:
         if best_profile is not None:
             self.add_profile(best_profile)
             return best_match
-        else:
-            return 0
+        return 0
 
     def find_facebook_profile(self, fb_scraper, *custom_keywords):
         '''
@@ -306,8 +304,7 @@ class person:
             possibile_profiles.extend(ps)
 
         # Filtra profili (ricerche ridondanti)
-        possibile_profiles = list(
-            set([p for p in possibile_profiles if p is not None]))
+        possibile_profiles = list({p for p in possibile_profiles if p is not None}) # Set comprehension
 
         # I profili vengono preparati per il confronto
         # Nel loop esegue anche il confronto tra i possibili profili Facebook e i profili già presenti per il profilo.
@@ -330,8 +327,7 @@ class person:
         if best_profile is not None:
             self.add_profile(best_profile)
             return best_match
-        else:
-            return 0
+        return 0
 
     def find_twitter_profile(self, tw_scraper, *custom_keywords):
         '''
@@ -364,8 +360,7 @@ class person:
                 possibile_profiles.extend(tw_profiles)
 
         # Filtra profili (ricerche ridondanti)
-        possibile_profiles = list(
-            set([p for p in possibile_profiles if p is not None]))
+        possibile_profiles = list({p for p in possibile_profiles if p is not None}) # Set comprehension
 
         # Una volta individuati i possibili profili li converte negli oggetti
         # profiles.instagram_profile e li preprara per il confronto.
@@ -384,10 +379,8 @@ class person:
                 best_match = tot_match
                 best_profile = twp
 
-        # Una volta terminati i confronti si aggiunge il profilo migliore (se è
-        # stato trovato)
+        # Una volta terminati i confronti si aggiunge il profilo migliore (se è stato trovato)
         if best_profile is not None:
             self.add_profile(best_profile)
             return best_match
-        else:
-            return 0
+        return 0

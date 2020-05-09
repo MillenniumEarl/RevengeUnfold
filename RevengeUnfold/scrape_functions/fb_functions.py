@@ -64,6 +64,7 @@ LOGIN_INCORRECT_CREDENTIALS = 1
 USER_NOT_LOGGED = 2
 TOO_MANY_REQUESTS = 3
 NO_PROFILE_PHOTO = 4
+UNEXPECTED_URL_VALUE = 5
 
 # Error codes
 WEBDRIVER_GENERIC_ERROR = 400
@@ -479,7 +480,7 @@ class fb_scraper:
 
         # Cerca l'utente
         if not skip_verification:
-            if not _find_user_page(username):
+            if not self._find_user_page(username):
                 return None
 
         # Utente esistente, estrapoliamo i dati..

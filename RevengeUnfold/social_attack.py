@@ -1,5 +1,3 @@
-import datetime
-import os
 from itertools import islice
 
 ############### External Modules Imports ###############

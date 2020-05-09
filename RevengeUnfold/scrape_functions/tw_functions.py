@@ -179,12 +179,10 @@ class tw_scraper:
             if tw_user.biography != '':
                 tw_user.biography = profile.biography
 
-            try:
-                tw_loc = profile.location # Check the exception
-                if tw_loc != '':
-                    loc = location.location().from_name(tw_loc)
-                    tw_user.locations.append(loc)
-            except: pass
+            tw_loc = profile.location
+            if tw_loc != '':
+                loc = location.location().from_name(tw_loc)
+                tw_user.locations.append(loc)
         except ValueError:
             # Profile not exists
             return None

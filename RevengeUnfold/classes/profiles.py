@@ -9,8 +9,9 @@ import photohash
 
 ############### Local Modules Imports ###############
 from classes import phone
-from scrape_functions import tg_functions
+from generic import concat
 import password_manager
+from scrape_functions import tg_functions
 
 
 class base_profile:
@@ -76,8 +77,6 @@ class base_profile:
         Valore di accuratezza tra i profili, più è alto maggiore la similarità
         '''
 
-        from generic import concat
-
         # Variabili locali
         match = 0
 
@@ -109,9 +108,9 @@ class base_profile:
                 match += results.count(True)
 
         # Compara le immagini tramite hash per identificare quelle similari
-        for hash in self._perceptual_hashes:
-            for cmp_hash in profile._perceptual_hashes:
-                if photohash.hashes_are_similar(hash, cmp_hash):
+        for cmp_hash in self._perceptual_hashes:
+            for new_hash in profile._perceptual_hashes:
+                if photohash.hashes_are_similar(cmp_hash, new_hash):
                     match += 1
 
         return match
@@ -159,9 +158,9 @@ class base_profile:
 
         # Elabora gli hash delle immagini
         for image_path in images_list:
-            hash = photohash.average_hash(image_path)
-            if not hash in self._perceptual_hashes:  # Evita di aggiungere doppi
-                self._perceptual_hashes.append(hash)
+            image_hash = photohash.average_hash(image_path)
+            if not image_hash in self._perceptual_hashes:  # Evita di aggiungere doppi
+                self._perceptual_hashes.append(image_hash)
 
 
 class telegram_profile(base_profile):
@@ -194,12 +193,12 @@ class telegram_profile(base_profile):
             self.phone = phone.phone(tg_profile.phone)
         return True
 
-    def get_profile_from_userid(self, id, tg_client=None):
+    def get_profile_from_userid(self, userid, tg_client=None):
         '''
         Ottiene i dati di un profilo Telegram a partire dall'ID di tale profilo
 
         Params:
-        @id: ID dell'utente Telegram
+        @userid: ID dell'utente Telegram
         @tg_client [None]: Client Telegram da usare
 
         Return:
@@ -212,7 +211,7 @@ class telegram_profile(base_profile):
             with tg_functions.connect_telegram_client(password_manager.tg_phone, password_manager.tg_api_id, password_manager.tg_api_hash) as tg_client_internal:
                 profile = tg_functions.get_profiles(tg_client_internal, id)
         else:
-            profile = tg_functions.get_profiles(tg_client, id)
+            profile = tg_functions.get_profiles(tg_client, userid)
         if profile is None:
             return False  # Se non esiste il profilo corrispondente ai dati indicati ritorna False
         else:
@@ -237,12 +236,10 @@ class telegram_profile(base_profile):
             with tg_functions.connect_telegram_client(password_manager.tg_phone, password_manager.tg_api_id, password_manager.tg_api_hash) as tg_client_internal:
                 profile = tg_functions.get_profiles(
                     tg_client_internal, username)
-        else:
-            profile = tg_functions.get_profiles(tg_client, username)
-        if profile is None:
-            return False  # Se non esiste il profilo corrispondente ai dati indicati ritorna False
-        else:
-            self.get_profile_from_tg_profile(profile)
+        else: profile = tg_functions.get_profiles(tg_client, username)
+        if profile is None: return False  # Se non esiste il profilo corrispondente ai dati indicati ritorna False
+        
+        self.get_profile_from_tg_profile(profile)
         return True
 
     def download_profile_photos(self, save_dir, tg_client=None):
@@ -259,10 +256,8 @@ class telegram_profile(base_profile):
         '''
 
         if self._tg_profile is None:
-            if self.user_id is None:
-                return False
-            else:
-                self.get_profile_from_userid(user_id, tg_client)
+            if self.user_id is None: return False
+            self.get_profile_from_userid(self.user_id, tg_client)
 
         # Crea la cartella se non esiste
         save_dir = os.path.abspath(save_dir)
@@ -306,7 +301,7 @@ class telegram_profile(base_profile):
         n_images = len([os.path.join(image_dir, name) for name in os.listdir(
             image_dir) if os.path.isfile(os.path.join(image_dir, name))])
         if n_images == 0:
-            if self.download_profile_photos(image_dir, tg_client) == False:
+            if self.download_profile_photos(image_dir, tg_client) is False:
                 return False
 
         # Elabora le immagini alla ricerca di volti
@@ -368,7 +363,7 @@ class instagram_profile(base_profile):
         '''
 
         # Cerca il profilo su Instagram
-        profile = ig_scraper.find_user_by_username(ig_client, username)
+        profile = ig_scraper.find_user_by_username(username)
 
         if profile is None:
             return False  # Se non esiste il profilo corrispondente ai dati indicati ritorna False
@@ -390,10 +385,8 @@ class instagram_profile(base_profile):
         '''
 
         if self._ig_profile is None:
-            if self.username is None:
-                return False
-            else:
-                self.get_profile_from_username(self.username)
+            if self.username is None: return False
+            self.get_profile_from_username(ig_scraper, self.username)
 
         # Crea la cartella se non esiste
         if not os.path.exists(save_dir):
@@ -431,7 +424,7 @@ class instagram_profile(base_profile):
         n_images = len([os.path.join(image_dir, name) for name in os.listdir(
             image_dir) if os.path.isfile(os.path.join(image_dir, name))])
         if n_images == 0:
-            if self.download_photos(ig_scraper, image_dir) == False:
+            if self.download_photos(ig_scraper, image_dir) is False:
                 return False
 
         # Elabora le immagini alla ricerca di volti
@@ -494,11 +487,11 @@ class facebook_profile(base_profile):
         # Cerca il profilo su Facebook
         profile = fb_scraper.find_user_by_username(username)
 
-        if profile is None:
-            return False  # Se non esiste il profilo corrispondente ai dati indicati ritorna False
-        else:
-            self = profile
-            return True
+        if profile is None: return False  # Se non esiste il profilo corrispondente ai dati indicati ritorna False
+        
+        # Aggiorna il profilo
+        self.__dict__.update(profile.__dict__)
+        return True
 
     def download_photos(self, fb_scraper, save_dir):
         '''
@@ -555,7 +548,7 @@ class facebook_profile(base_profile):
         n_images = len([os.path.join(image_dir, name) for name in os.listdir(
             image_dir) if os.path.isfile(os.path.join(image_dir, name))])
         if n_images == 0:
-            if self.download_photos(fb_scraper, image_dir) == False:
+            if self.download_photos(fb_scraper, image_dir) is False:
                 return False
 
         # Elabora le immagini alla ricerca di volti
@@ -597,11 +590,11 @@ class twitter_profile(base_profile):
         # Cerca il profilo su Twtter
         profile = tw_scraper.find_user_by_username(username)
 
-        if profile is None:
-            return False  # Se non esiste il profilo corrispondente ai dati indicati ritorna False
-        else:
-            self = profile
-            return True
+        if profile is None: return False  # Se non esiste il profilo corrispondente ai dati indicati ritorna False
+        
+        # Aggiorna il profilo
+        self.__dict__.update(profile.__dict__)
+        return True     
 
     def download_photos(self, tw_scraper, save_dir):
         '''
@@ -658,7 +651,7 @@ class twitter_profile(base_profile):
         n_images = len([os.path.join(image_dir, name) for name in os.listdir(
             image_dir) if os.path.isfile(os.path.join(image_dir, name))])
         if n_images == 0:
-            if self.download_photos(tw_scraper, image_dir) == False:
+            if self.download_photos(tw_scraper, image_dir) is False:
                 return False
 
         # Elabora le immagini alla ricerca di volti
@@ -666,7 +659,7 @@ class twitter_profile(base_profile):
 
         # Elabora le immagini per ricavarne il perceptual hash
         self._elaborate_perceptual_hash_media(image_dir)
-
+        
         # Elimina la cartella temporanea utilizzata
         if use_temp_dir:
             shutil.rmtree(image_dir)

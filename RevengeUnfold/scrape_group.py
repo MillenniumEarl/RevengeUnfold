@@ -39,7 +39,7 @@ def _end_program():
     exit(0)
 
 
-def _keyboard_interrupt_handler(signal, frame):  # noeq
+def _keyboard_interrupt_handler(rcv_signal, frame):  # noeq
     print('\n' +
           colored(
               '[SYSTEM]',
@@ -260,11 +260,11 @@ def _select_work_dir():
     print(colored('[SYSTEM]', 'green') + ' Press a key to select the work directory', end='')
     input()
 
-    dir = filedialog.askdirectory()
+    selected_dir = filedialog.askdirectory()
 
-    print(colored('[SYSTEM]', 'green') + ' Selected directory: {}'.format(dir))
+    print(colored('[SYSTEM]', 'green') + ' Selected directory: {}'.format(selected_dir))
 
-    return dir
+    return selected_dir
 
 ############### Scraping Functions Definition ###############
 
@@ -286,7 +286,7 @@ def _scrape_telegram(people, save_people_dir, image_dir):
 
     # Elabora solo i profili non ancora elaborati
     for p in people:
-        ps = profile.get_profiles('Telegram')
+        ps = p.get_profiles('Telegram')
         for tg_profile in ps:
             if not tg_profile.is_elaborated:
                 tg_profiles_list.append(tg_profile)
