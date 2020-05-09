@@ -69,6 +69,7 @@ password = this_is_my_facebook_password
 The project contains both the individual modules for platform scraping and the actual application that uses them. It can be used with a graphical CLI (there is no version usable with parameters) via `python3 main.py` or` python main.py`.
 
 ## Important information here!
+- Despite the possibility, __do not use any type of proxy__: they slow down the whole process and are the fastest way to get blocked by Facebook
 - __Telegram__: You can only scrape groups, not channels (unless you are an administrator for that channel)
 - __Facebook__: You are warned, being blocked on facebook is damn quick.
   - If you are blocked or put on hold, __do not restart the program to avoid resetting the request counters__ (although there is a system to prevent this eventuality)
