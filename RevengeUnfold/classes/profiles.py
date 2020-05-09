@@ -393,7 +393,7 @@ class instagram_profile(base_profile):
             if self.username is None:
                 return False
             else:
-                self.get_profile_from_username(self.username)
+                self.get_profile_from_username(ig_scraper, self.username)
 
         # Crea la cartella se non esiste
         if not os.path.exists(save_dir):
