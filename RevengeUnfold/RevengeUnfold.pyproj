@@ -1,0 +1,93 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>581b2d0d-08e3-47b4-a410-5096d829fb34</ProjectGuid>
+    <ProjectHome>.</ProjectHome>
+    <StartupFile>main.py</StartupFile>
+    <SearchPath>
+    </SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <Name>RevengeUnfold</Name>
+    <RootNamespace>RevengeUnfold</RootNamespace>
+    <SuppressEnvironmentCreationPrompt>True</SuppressEnvironmentCreationPrompt>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="classes\location.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="classes\phone.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="classes\proxy.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="code_cleanup.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="database.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="result_visualizer.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="scrape_functions\scraper_error.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="scrape_functions\tw_functions.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_download_and_classify_media.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="generic.py" />
+    <Compile Include="main.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="scrape_group.py" />
+    <Compile Include="classes\person.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="classes\profiles.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="scrape_functions\fb_functions.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="scrape_functions\ig_functions.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="scrape_functions\tg_functions.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="password_manager.py" />
+    <Compile Include="social_attack.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_lab_test.py">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="classes\" />
+    <Folder Include="scrape_functions\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
+  <!-- Uncomment the CoreCompile target to enable the Build command in
+       Visual Studio and specify your pre- and post-build commands in
+       the BeforeBuild and AfterBuild targets below. -->
+  <!--<Target Name="CoreCompile" />-->
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+</Project>
