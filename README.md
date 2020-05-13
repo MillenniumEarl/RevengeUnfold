@@ -87,7 +87,7 @@ The project contains both the individual modules for platform scraping and the a
 - [ ] Complete `scrape_attack.py` (Phishing code) 
 - [ ] Clenup code
 
-## I need your help!
+## Contributing
 This is the first public project that I develop and I have tried to make the code as comprehensible as possible. If anyone wants to modify, optimize or improve the code, they are welcome!
 I also realize that the project is relatively vast and touches several platforms. I do not guarantee it but I will try, in my spare time from university, to write a wiki documenting the code. 
 For now I will try to translate the comments from Italian to English (at the beginning I didn't think I would share it :grimacing:)
