@@ -1,4 +1,4 @@
-cryptg==0.2.post0
+cryptg==0.2.post1
 pyfiglet==0.8.post1
 colorama==0.4.3
 termcolor==1.1.0
@@ -11,6 +11,7 @@ Pillow==7.1.2
 selenium==3.141.0
 telethon==1.13.0
 tqdm==4.46.0
+twitter-scraper==0.4.1
 webdriver_manager==2.4.0
 random_user_agent==1.0.1
 free-proxy==1.0.1

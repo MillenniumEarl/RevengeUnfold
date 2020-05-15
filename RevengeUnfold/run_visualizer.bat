@@ -1,2 +1,0 @@
-python result_visualizer.py
-PAUSE

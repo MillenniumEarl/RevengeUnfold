@@ -9,6 +9,7 @@ import tkinter as tk
 from tkinter import filedialog
 
 ############### External Modules Imports ###############
+from instaloader.exceptions import ConnectionException
 from termcolor import colored
 from tqdm import tqdm
 
@@ -72,7 +73,7 @@ def _define_loggers():
     _scrape_logger = generic.create_logger(
         'scrape_logger', os.path.join(
             log_dir, f'scrape_group_{today_s}.log'))
-    _scrape_logger.setLevel(logging.WARNING)
+    _scrape_logger.setLevel(logging.INFO)
 
     _fb_logger = generic.create_logger(
         'facebook_logger', os.path.join(
@@ -331,14 +332,12 @@ def _scrape_telegram(people, save_people_dir, image_dir):
         _end_program()
 
 
-def _scrape_facebook_instagram(people, save_people_dir):
+def _scrape_facebook(people, save_dir_people):
     '''
-    Esegue l'associazione dei profili delle persone a Facebook e Instagram.
-    Vengono eseguite le associazioni in maniera alternata, così da limitare 
-    i casi di blocco degli account o di attesa per troppe richieste.
+    Esegue l'associazione dei profili delle persone a Facebook
 
     Params:
-    @people: Lista di classes.person a cui associare un profilo Twitter
+    @people: Lista di classes.person a cui associare un profilo Facebook
     @save_people_dir: Cartella dove salvare i file profilo
     '''
 
@@ -347,40 +346,30 @@ def _scrape_facebook_instagram(people, save_people_dir):
     fb_scraper = fb_functions.fb_scraper(_fb_logger)
     fb_scraper.init_scraper(use_proxy=False)
     if not fb_scraper.fb_login(password_manager.fb_email, password_manager.fb_password):
-        print(colored('[FACEBOOK]', 'blue', 'on_white') +
-              ' Unable to login to Facebook')
+        print(colored('[FACEBOOK]', 'blue', 'on_white') + ' Unable to login to Facebook')
         _scrape_logger.error('Unable to login to Facebook')
         fb_scraper.terminate()
+        return
 
-    # Crea l'istanza per Instagram
-    _scrape_logger.info('Creation of Instagram scraper')
-    ig_scraper = ig_functions.ig_scraper(_ig_logger)
-    if not ig_scraper.login_anonymously():
-        print(colored('[INSTAGRAM]', 'magenta') +
-              ' Unable to login to Instagram')
-        _scrape_logger.error('Unable to login to Instagram')
-        ig_scraper.terminate()
-
-    # Inizia lo scraping
-    _scrape_logger.info('Search for Instagram and Facebook users')
-    for p in tqdm(people, 'Search for Instagram and Facebook users'):
+     # Inizia lo scraping
+    _scrape_logger.info('Search for Facebook users')
+    for p in tqdm(people, 'Search for Facebook users'):
         # Ottiene il percorso di salvataggio del file
-        save_path = os.path.join(save_people_dir, '{}.person'.format(p.id))
+        save_path = os.path.join(save_dir_people, '{}.person'.format(p.id))
 
         # Se l'utente ha scelto di terminare l'applicazione
         # vengono chiuse le istanze degli scraper
         if _terminate_program:
             fb_scraper.terminate()
-            ig_scraper.terminate()
             _end_program()
-
-        _scrape_logger.debug('Search user FB/IG profiles with profile ID {}, name {} {}'
-                             .format(p.id, p.first_name, p.last_name))
 
         # Verifica che il profilo Facebook non sia stato bloccato
         if fb_scraper.is_blocked:
-            fb_scraper.terminate()
-            tqdm.write(colored('[Facebook]', 'blue', 'on_white') + ' Facebook profile has been blocked, now proceeding with only Instagram...')
+            tqdm.write(colored('[Facebook]', 'blue', 'on_white') + ' Facebook profile has been blocked, now proceeding with Instagram...')
+            break
+
+        _scrape_logger.debug('Search user FB profiles with profile ID {}, name {} {}'
+                             .format(p.id, p.first_name, p.last_name))
 
         # Verifica se già esiste un profilo Facebook
         if not len(p.get_profiles('Facebook')) > 0 and fb_scraper.is_logged:
@@ -388,29 +377,70 @@ def _scrape_facebook_instagram(people, save_people_dir):
             result = p.find_facebook_profile(fb_scraper, 'italia')
             if result > 0:
                 tqdm.write(colored('[Facebook]', 'blue', 'on_white') +
-                           generic.only_ASCII(' Identified compatible Facebook profile for {} {} ({} references)'
-                                              .format(p.first_name, p.last_name, result)))
+                           generic.only_ASCII(' Identified compatible Facebook profile for {} ({} references)'
+                                              .format(p.get_full_name(), result)))
 
             # Salva i risultati
-            pickle.dump(p, open(save_path, 'wb'), protocol=pickle.HIGHEST_PROTOCOL)
-            database.set_person_checked(_db_path, p.id, 'Facebook')
+            if not fb_scraper.is_blocked:
+                pickle.dump(p, open(save_path, 'wb'), protocol=pickle.HIGHEST_PROTOCOL)
+                database.set_person_checked(_db_path, p.id, 'Facebook')
+
+    # Chiude il browser Facebook
+    _scrape_logger.info('Facebook WebDriver instance termination')
+    fb_scraper.terminate()
+
+
+def _scrape_instagram(people, save_people_dir):
+    '''
+    Esegue l'associazione dei profili delle persone a Instagram
+
+    Params:
+    @people: Lista di classes.person a cui associare un profilo Instagram
+    @save_people_dir: Cartella dove salvare i file profilo
+    '''
+
+    # Crea l'istanza lo scraper Instagram
+    _scrape_logger.info('Creation of Instagram scraper')
+    ig_scraper = ig_functions.ig_scraper(_ig_logger)
+    if not ig_scraper.login_anonymously():
+        print(colored('[INSTAGRAM]', 'magenta') + ' Unable to instantiate Instagram client')
+        _scrape_logger.error('Unable to instantiate anonymous Instagram client')
+        ig_scraper.terminate()
+
+    # Inizia lo scraping
+    _scrape_logger.info('Search for Instagram users')
+    for p in tqdm(people, 'Search for Instagram users'):
+        # Ottiene il percorso di salvataggio del file
+        save_path = os.path.join(save_people_dir, '{}.person'.format(p.id))
+
+        # Se l'utente ha scelto di terminare l'applicazione
+        # vengono chiuse le istanze degli scraper
+        if _terminate_program:
+            ig_scraper.terminate()
+            _end_program()
+
+        # Verifica che il profilo Instagram non sia stato bloccato
+        if ig_scraper.is_blocked:
+            tqdm.write(colored('[Instagram]', 'magenta') + ' Istagram profile has been blocked, now proceeding with Twitter...')
+            break
+
+        _scrape_logger.debug('Search user IG profiles with profile ID {}, name {} {}'
+                             .format(p.id, p.first_name, p.last_name))
 
         # Verifica se già esiste un profilo Instagram
         if not len(p.get_profiles('Instagram')) > 0 and ig_scraper.is_initialized:
             # Ricerca del profilo Instagram
             result = p.find_instagram_profile(ig_scraper)
+
             if result > 0:
                 tqdm.write(colored('[Instagram]', 'magenta') +
-                           generic.only_ASCII(' Identified compatible Instagram profile for {} {} ({} references)'
-                                              .format(p.first_name, p.last_name, result)))
+                           generic.only_ASCII(' Identified compatible Instagram profile for {} ({} references)'
+                                              .format(p.get_full_name(), result)))
 
             # Salva i risultati
-            pickle.dump(p, open(save_path, 'wb'), protocol=pickle.HIGHEST_PROTOCOL)
-            database.set_person_checked(_db_path, p.id, 'Instagram')
-
-    # Chiude il browser Facebook
-    _scrape_logger.info('Facebook WebDriver instance termination')
-    fb_scraper.terminate()
+            if not ig_scraper.is_blocked:
+                pickle.dump(p, open(save_path, 'wb'), protocol=pickle.HIGHEST_PROTOCOL)
+                database.set_person_checked(_db_path, p.id, 'Instagram')
 
     # Chiude il client Instagram
     _scrape_logger.info('Instagram client termination')
@@ -428,7 +458,7 @@ def _scrape_twitter(people, save_people_dir):
 
     # Istanzia lo scraper per Twitter
     tw_scraper = tw_functions.tw_scraper(_tw_logger)
-
+    tw_scraper.init(use_proxy=False)
     _scrape_logger.info('Search for Twitter users')
     for p in tqdm(people, 'Search for Twitter users'):
         # Gestisce l'interruzione della ricerca da parte dell'utente
@@ -446,8 +476,8 @@ def _scrape_twitter(people, save_people_dir):
 
             if result > 0:
                 tqdm.write(colored('[Twitter]', 'white', 'on_cyan') +
-                           generic.only_ASCII(' Identified compatible Twitter profile for {} {} ({} references)'
-                                              .format(p.first_name, p.last_name, result)))
+                           generic.only_ASCII(' Identified compatible Twitter profile for {} ({} references)'
+                                              .format(p.get_full_name(), result)))
 
             # Salva i risultati
             save_path = os.path.join(save_people_dir, '{}.person'.format(p.id))
@@ -496,8 +526,11 @@ def scrape_group():
     # Vengono scaricate le foto profilo degli utenti Telegram
     _scrape_telegram(people_profiles, people_save_dir, tg_save_images_dir)
 
-    # Vengono elaborati i profili Facebook e Instagram
-    _scrape_facebook_instagram(people_profiles, people_save_dir)
+    # Vengono elaborati i profili Facebook
+    _scrape_facebook(people_profiles, people_save_dir)
+
+    # Vengono elaborati i profili Instagram
+    _scrape_instagram(people_profiles, people_save_dir)
 
     # Vengono elaborati i profili Twitter
     _scrape_twitter(people_profiles, people_save_dir)
@@ -558,12 +591,15 @@ def resume_scrape_session():
     tg_people_list = [p for p in people_profiles if p.id in ids_list]
     _scrape_telegram(tg_people_list, people_save_dir, tg_save_images_dir)
 
-    # Vengono elaborati i profili Facebook e Instagram
+    # Vengono scaricate le foto profilo degli utenti Facebook
     ids_list = database.get_uncheked_people_ids_for_platform(_db_path, 'Facebook')
-    ids_list.extend(database.get_uncheked_people_ids_for_platform(_db_path, 'Instagram'))
-    ids_list = list(set(ids_list))
-    fb_ig_people_list = [p for p in people_profiles if p.id in ids_list]
-    _scrape_facebook_instagram(fb_ig_people_list, people_save_dir)
+    fb_people_list = [p for p in people_profiles if p.id in ids_list]
+    #_scrape_facebook(fb_people_list, people_save_dir)
+
+    # Vengono scaricate le foto profilo degli utenti Instagram
+    ids_list = database.get_uncheked_people_ids_for_platform(_db_path, 'Instagram')
+    ig_people_list = [p for p in people_profiles if p.id in ids_list]
+    _scrape_instagram(ig_people_list, people_save_dir)
 
     # Vengono elaborati i profili Twitter
     ids_list = database.get_uncheked_people_ids_for_platform(_db_path, 'Twitter')

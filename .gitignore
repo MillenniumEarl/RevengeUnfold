@@ -340,3 +340,4 @@ ASALocalRun/
 healthchecksdb
 *.ini
 /RevengeUnfold/session.fb_scraper
+/RevengeUnfold/instagram_session.session

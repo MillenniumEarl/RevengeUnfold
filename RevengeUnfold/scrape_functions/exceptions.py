@@ -5,6 +5,9 @@ class WebDriverNotInitialized(Exception):
 class UserNotLogged(Exception):
     pass
 
+class InstagramClientBlocked(Exception):
+    pass
+
 class FacebookAccountBlocked(Exception):
     pass
 

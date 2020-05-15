@@ -1,49 +1,59 @@
+############### External Modules Imports ###############
 import phonenumbers
 from phonenumbers import geocoder, carrier, timezone
 
-
 class phone:
-    '''
-    Classe rappresentante un numero di telefono. Tramite costruttore può ottenere i dati di un numero telefonico.
+    """
+    Class representing a phone number. Through the constructor it can obtain the data of a telephone number.
 
-    Proprietà:
-    @number: Numero di telefono (Stringa)
-    @carrier: Nome operatore telefonico originale del numero (Stringa)
-    @geolocation: Paese di appartenenza del numero (Stringa)
-    @timezone: Timezone in cui è utilizzato il telefono (Stringa)
-    '''
+    Attributes
+    ----------
+    number : str
+        Telephone number
+    carrier : str
+        Original telephone operator name of the number
+    geolocation : str
+        Country to which the number belongs
+    timezone : str
+        Timezone of the country where the phone is used
+    """
 
-    def __init__(self, phone_number):
+    def __init__(self, phone_number:str):
+        """
+        Parameters
+        ----------
+        phone_number : str
+            Telephone number for which to obtain information
+        """
         self.number = None
         self.carrier = None
         self.geolocation = None
         self.timezone = None
 
-        # Se non è presente aggiunge il + per il prefisso internazionale (evita
-        # eccezioni)
+        # If not present, add the + for the international prefix (avoid exceptions)
         if not '+' in phone_number:
-            # Rimuove eventuali + non al primo carattere
+            # Remove any + not at first character
             phone_number = '+{}'.format(phone_number.replace('+', ''))
 
-        # Ottiene informazioni sul numero considerandolo come internazionale
+        # It obtains information on the number considering it as international
         parsed_phone = phonenumbers.parse('{}'.format(phone_number), None)
 
-        # Verifica se il numero è corretto e valido
+        # Check if the number is correct and valid
         if not phonenumbers.is_possible_number(parsed_phone):
             return None
         if not phonenumbers.is_valid_number(parsed_phone):
             return None
 
-        # Il numero è valido, lo formatto con metodo internazionale
+        # The number is valid, formatted with international format
         # (+00 11 2222 3333)
         self.number = phonenumbers.format_number(
             parsed_phone, phonenumbers.PhoneNumberFormat.INTERNATIONAL)
 
-        # Geolocalizza il numero
+        # Geolocate the number
         self.geolocation = geocoder.description_for_number(parsed_phone, 'it')
 
-        # Identifica l'operatore
+        # Identify the operator
         self.carrier = carrier.name_for_number(parsed_phone, 'it')
 
-        # Identifica la zona oraria a cui appartiene il numero
+        # Identifies the time zone to which the number belongs
         self.timezone = timezone.time_zones_for_number(parsed_phone)

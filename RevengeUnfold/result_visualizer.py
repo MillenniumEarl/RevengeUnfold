@@ -10,24 +10,48 @@ from tkinter import filedialog
 from termcolor import colored
 from tqdm import tqdm
 
-def _load_people_profiles(load_dir):
-    '''
-    Carica i profili utente salvati in precedenza
+############### Local Modules Imports ###############
+import database
 
-    Params:
-    @load_dir: Directory dove sono contenuti i profili utente
+def _select_work_dir():
+    '''
+    Lascia selezionare all'utente la cartella di lavoro da utilizzare
 
     Return:
-    Lista di profili (classes.person)
+    Percorso della cartella selezionata dall'utente
     '''
 
-    # Variabili locali
+    # Seleziona la cartella da cui caricare i profili
+    root = tk.Tk()
+    root.withdraw()
+
+    print(colored('[SYSTEM]', 'green') + ' Press a key to select the work directory', end='')
+    input()
+
+    selected_dir = filedialog.askdirectory()
+
+    print(colored('[SYSTEM]', 'green') + ' Selected directory: {}'.format(selected_dir))
+
+    return selected_dir
+
+def _load_people_profiles(load_dir):
+    '''
+    Load previously saved user profiles
+
+    Params:
+    @load_dir: Directory where user profiles are contained
+
+    Return:
+    List of profiles (classes.person)
+    '''
+
+    # Local variables
     profiles_list = []
 
-    # Ricerca tutti i file di salvataggio
+    # Search all save files
     filepath_list = glob(os.path.join(load_dir, '*.person'))
 
-    # Carica i profili
+    # Load profiles
     for filepath in tqdm(filepath_list, colored('[SYSTEM]', 'green') + ' Loading profiles'):
         p = pickle.load(open(filepath, 'rb'))
         profiles_list.append(p)
@@ -36,80 +60,104 @@ def _load_people_profiles(load_dir):
 
 def _export_to_csv(peoples_data, save_path):
     '''
-    Esporta i dati dei profili degli utenti in un file CSV
+    Export user profile data to a CSV file
 
-    Params:
-    @peoples_data: Lista di oggetti classes.person
-    @save_path: Percorso di salvataggio del file CSV
+    Params:
+    @peoples_data: List of classes.person objects
+    @save_path: Path to save the CSV file
     '''
 
-    # Apre il file per il salvataggio in scrittura
-    with open(save_path, 'w', encoding='utf-8') as f:
-        fnames = ['Nome', 'Cognome', 'Username Telegram', 'Telefono Telegram', 'Username Facebook', 'Username Instagram', 'Identificabilità']
+    # Opens the CSV file for writing saving
+    with open(save_path, 'w', encoding='utf-16') as f:
+        fnames = ['Full Name', 'Telegram Username', 'Telegram Phone', 'Facebook Username', 'Instagram Username', 'Twitter Username', 'Identifiability']
         writer = csv.DictWriter(f, fieldnames=fnames)  
 
         writer.writeheader()
 
         for p in peoples_data:
-            tg_profile = p.get_profiles('Telegram')[0]
-            fb_profile = p.get_profiles('Facebook')[0]
-            ig_profile = p.get_profiles('Instagram')[0]
-            tg_phone = tg_profile.phone.number if tg_profile.phone is not None else 'Nessun numero'
+            # Check and get social profiles
+            tg_profile = p.get_profiles('Telegram')[0] if len(p.get_profiles('Telegram')) > 0 else None
+            fb_profile = p.get_profiles('Facebook')[0] if len(p.get_profiles('Facebook')) > 0 else None
+            ig_profile = p.get_profiles('Instagram')[0] if len(p.get_profiles('Instagram')) > 0 else None
+            tw_profile = p.get_profiles('Twitter')[0] if len(p.get_profiles('Twitter')) > 0 else None
 
+            # Check and get Telegram phone number
+            if tg_profile is None: tg_phone = 'No phone number'
+            else: tg_phone = tg_profile.phone.number if tg_profile.phone is not None else 'No phone number'
+            
+            # Prepare and write data into CSV file
             data = {
-                    'Nome':p.first_name, 
-                    'Cognome':p.last_name, 
-                    'Username Telegram': '@' + tg_profile.username,
+                    'Full Name':p.get_full_name(), 
+                    'Telegram Username': '@' + str(tg_profile.username) if tg_profile is not None else 'No profile', 
                     'Telefono Telegram': tg_phone, 
-                    'Username Facebook': fb_profile.username, 
-                    'Username Instagram': ig_profile.username, 
-                    'Identificabilità': p.get_identifiability()
+                    'Facebook Username': fb_profile.username if fb_profile is not None else 'No profile', 
+                    'Instagram Username': ig_profile.username if ig_profile is not None else 'No profile',
+                    'Twitter Username': '@' + str(tw_profile.username) if tw_profile is not None else 'No profile',
+                    'Identifiability': p.get_identifiability()
                     }
             writer.writerow(data)
 
 def visualize_result():
-    # Seleziona la cartella da cui caricare i profili
-    root = tk.Tk()
-    root.withdraw()
+    # Select the workdir
+    base_dir = _select_work_dir()
 
-    print(colored('[SYSTEM]', 'green') + ' Press a key to select the folder containing the profiles', end = '')
-    input()
-
-    dir_path = filedialog.askdirectory()
-    if dir_path == '':
+    if base_dir == '':
         print(colored('[ERROR]', 'red') + ' You must select a folder to continue')
         return
 
-    # Carica i profili
-    profiles = _load_people_profiles(dir_path)
+    # Load completed profiles IDs
+    db_path = os.path.join(base_dir, 'session.sqlite')
+    ids_list = database.get_completed_people_ids(db_path)
 
-    # Filtra solo i profili che possiedono account Telegram, Instagram e Facebook
-    profiles = [profile for profile in profiles if len(profile.get_profiles('Telegram')) > 0 and len(profile.get_profiles('Facebook')) > 0 and len(profile.get_profiles('Instagram')) > 0]
+    # Load profiles
+    people_profiles = _load_people_profiles(os.path.join(base_dir, 'people'))
 
-    # Ordina le persone in base al loro indice di identificabilità
-    # (decrescente)
-    profiles.sort(key=lambda p: p.get_identifiability(), reverse=True)
+    # Filter complete profiles
+    people_profiles = [p for p in people_profiles if p.id in ids_list]
 
-    print(colored('[SYSTEM]', 'green') + ' I profili probabilmente identificati sono {}'.format(len(profiles)))
+    # Sort people by their identifiability index (descending)
+    people_profiles.sort(key=lambda p: p.get_identifiability(), reverse=True)
 
-    # Salva un file CSV con i dati
-    print(colored('[SYSTEM]', 'green') + ' Vuoi salvare un file CSV riepilogativo? (y/n): ', end = '')
+    print(colored('[SYSTEM]', 'green') + ' The profiles probably identified are {}'.format(len(people_profiles)))
+
+    # Save a summary CSV file with completed profile data
+    print(colored('[SYSTEM]', 'green') + ' Do you want to save a summary CSV file? (y/n): ', end = '')
     save_csv = input()
 
     if save_csv.lower() == 'y':
-        save_path = filedialog.asksaveasfilename(title = 'Seleziona file di salvataggi', defaultextension='.csv', filetypes = (('File CSV','*.csv'),))
+        save_path = filedialog.asksaveasfilename(title = 'Select save file', defaultextension='.csv', filetypes = (('CSV file','*.csv'),))
         if save_path == '':
             print(colored('[ERROR]', 'red') + ' You must select a file to continue')
             return
         else:
-            _export_to_csv(profiles, save_path)
+            _export_to_csv(people_profiles, save_path)
             print(colored('[SYSTEM]', 'green') + ' Profiles exported correctly')
 
-    # Stampa i profili
-    for profile in profiles:
-        print('#################################################')
-        profile.print_info()
-        print(colored('[SYSTEM]', 'green') + ' Press a key to show the next profile', end = '')
-        input()
+    # Print the choice of profiles
+    index = 1
+    print(colored('[SYSTEM]', 'green') + ' Select a profile to view its details or 0 to exit: ')
+    for p in people_profiles:
+        print(colored('[', 'red') + str(index) + colored(']', 'red') + ': {} (Identifiability: {})'.format(p.get_full_name(), p.get_identifiability()))
+        index += 1
 
-    print(colored('[SYSTEM]', 'green') + ' All profiles showed')
+    exit = False
+    while not exit:
+        print(colored('[SYSTEM]', 'green') + ' Select a profile to view its details or 0 to exit: ', end='')
+        selected_index = input()
+
+        # Check the validity of the entered value
+        if not selected_index.isdigit():
+            print(colored('[ERROR]', 'red') + ' You must enter a number')
+            continue
+        elif not 1 < selected_index < len(people_profiles):
+            print(colored('[ERROR]', 'red') + ' You must enter a number between 1 and {}'.format(len(people_profiles)))
+            continue
+        elif selected_index == 0:
+            print(colored('[SYSTEM]', 'green') + ' Closing visualizer')
+            exit = True
+            continue
+
+        # Show the details of the selected profile
+        p = people_profiles[selected_index - 1]
+        p.print_info()
+    

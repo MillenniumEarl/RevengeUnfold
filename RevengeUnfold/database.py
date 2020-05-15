@@ -103,6 +103,34 @@ def get_uncheked_people_ids_for_platform(db_path, platform):
     # Ritorna la lista di ID
     return [row[0] for row in rows]
 
+def get_completed_people_ids(db_path):
+    '''
+    Ritorna una lista di ID di persone che hanno subito un controllo per tutti i profili
+
+    Params:
+    @db_path: Percorso del database
+
+    Return:
+    Lista di ID di classes.person che sono stati controllati per tutte le piattaforme disponibili
+    '''
+
+    # Variabili globali
+    sql_select_query = 'SELECT person_id FROM people WHERE tg_checked == 1 AND fb_checked == 1 AND ig_checked == 1 AND tw_checked == 1'
+
+    # Si connette al database
+    connection = create_connection(db_path)
+
+    # Legge i dati
+    cursor = connection.cursor()
+    cursor.execute(sql_select_query)
+    rows = cursor.fetchall()
+
+    # Termina la connessione
+    connection.close()
+
+    # Ritorna la lista di ID
+    return [row[0] for row in rows]
+
 def set_person_checked(db_path, person_id, platform):
     '''
     Imposta una persona come 'controllata' per una specifica piattaforma

@@ -9,7 +9,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from twitter_scraper import Profile as tws_Profile
+from twitter_scraper import Profile as TwProfile
 import urllib.request
 from webdriver_manager.chrome import ChromeDriverManager
 
@@ -164,12 +164,12 @@ class tw_scraper:
         @username: Nome utente del profilo
 
         Return:
-        Profilo Twitter (profiles.twitter_profile) o None se il profilo non esiste (o il WebDriver non è inizializzato).
+        Profilo Twitter (profiles.twitter_profile) o None se il profilo non esiste (o il WebDriver non è inizializzato)
         '''
 
         try:
             # Get the data from Twitter
-            profile = tws_Profile(username)
+            profile = TwProfile(username)
 
             # Convert the data to profiles.twitter_profile
             tw_user = twitter_profile()
@@ -182,7 +182,7 @@ class tw_scraper:
             tw_loc = profile.location
             if tw_loc != '':
                 loc = location.location().from_name(tw_loc)
-                tw_user.locations.append(loc)
+                if loc.is_valid: tw_user.locations.append(loc)
         except ValueError:
             # Profile not exists
             return None

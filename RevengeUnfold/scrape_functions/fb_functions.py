@@ -74,7 +74,7 @@ LOGIN_CANNOT_LOAD = 403
 DOWNLOAD_IMAGE_ERROR = 404
 ACCOUNT_BLOCKED = 405
 
-# Costants
+# Global constants
 SLEEP_TIME_LONG = 3
 SLEEP_TIME_MEDIUM = 2
 SLEEP_TIME_SHORT = 0.5
@@ -83,7 +83,7 @@ SESSION_FILE_NAME = 'session.fb_scraper'
 
 class fb_scraper:
     '''
-    Classe che rappresenta un'istanza di WebDriver e permette lo scraping di un profilo Facebook
+    Class that represents a Selenium instance of WebDriver and allows the scraping of a Facebook profile
     '''
 
     def __init__(self, logger=None):
@@ -91,7 +91,7 @@ class fb_scraper:
         self._requests = 0
         self._instantiation_time = datetime.datetime.now()
         self._timeout = 5
-        self._req_per_second = 0.056  # 200 all'ora
+        self._req_per_second = 0.056  # 200 per hour
         self._logger = logger
         self.is_blocked = False
         self.is_logged = False
@@ -154,7 +154,7 @@ class fb_scraper:
         # Calcola la media di richieste effettuate dall'instanziamento
         # dell'oggetto
         delta = datetime.datetime.now() - self._instantiation_time
-        avg_req_per_sec = self._requests / delta.seconds
+        avg_req_per_sec = self._requests / delta.total_seconds()
         if self._logger is not None:
             self._logger.debug(
                 'Current requests per second: {:.2f} rq/sec'.format(avg_req_per_sec))
@@ -170,8 +170,7 @@ class fb_scraper:
         if avg_req_per_sec > self._req_per_second:
             # Abbassa il numero di richieste al secondo ad un valore più basso
             # del massimo consentito
-            wait_delta_sec = self._requests / \
-                (self._req_per_second * REQUEST_LIMIT_MODIFIER)
+            wait_delta_sec = self._requests / (self._req_per_second * REQUEST_LIMIT_MODIFIER)
 
             # Ottiene il numero di secondi da attendere
             resume_time = datetime.datetime.now() + datetime.timedelta(seconds=wait_delta_sec)
@@ -179,7 +178,7 @@ class fb_scraper:
                 wait_delta_sec,
                 resume_time.strftime('%d/%m/%y %H:%M:%S'),
                 self._requests,
-                delta.seconds))
+                delta.total_seconds()))
             self._manage_error(TOO_MANY_REQUESTS, ex)
 
             # Attende per il tempo calcolato
@@ -229,8 +228,7 @@ class fb_scraper:
         self._request_manager()
 
         # Scende nella pagina
-        self._driver.execute_script(
-            "window.scrollTo(0, document.body.scrollHeight);")
+        self._driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         # Attende che la pagina carichi le immagini
         time.sleep(SLEEP_TIME_MEDIUM)
         self._request_manager()
@@ -245,8 +243,7 @@ class fb_scraper:
         self._request_manager()
 
         # Scende nella pagina
-        self._driver.execute_script(
-            "window.scrollTo(0, document.body.scrollHeight);")
+        self._driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         # Attende che la pagina carichi le immagini
         time.sleep(SLEEP_TIME_MEDIUM)
         self._request_manager()
@@ -347,7 +344,7 @@ class fb_scraper:
         options.add_argument('--mute-audio')
         options.add_argument('--log-level=3')
         options.add_experimental_option('excludeSwitches', ['enable-logging'])
-        options.add_argument('user-agent={}'.format(user_agent))
+        #options.add_argument('user-agent={}'.format(user_agent))
         if proxy_s is not None and use_proxy:
             options.add_argument('--proxy-server={}'.format(proxy_s))
 
@@ -518,7 +515,8 @@ class fb_scraper:
         try:
             location_div = wait.until(
                 EC.presence_of_element_located((By.XPATH, LOCATION_INFO_XP)))
-            fb_user.location = location.location().from_name(location_div.text)
+            loc = location.location().from_name(location_div.text)
+            if loc.is_valid: fb_user.location = loc
         except TimeoutException:
             pass
 
@@ -654,8 +652,7 @@ class fb_scraper:
                 EC.element_to_be_clickable(
                     (By.CLASS_NAME, PROFILE_PHOTO_CLASSNAME)))
         except TimeoutException:
-            ex = exceptions.NoProfilePhoto('The user does not have a profile photo')
-            self._manage_error(NO_PROFILE_PHOTO, ex)
+            self._logger.debug('User {} does not have a profile photo'.format(fb_profile.username))
             return False
         except Exception as ex:
             self._manage_error(WEBDRIVER_GENERIC_ERROR, ex)
