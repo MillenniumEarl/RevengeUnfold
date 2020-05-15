@@ -104,7 +104,7 @@ class person:
 
         # Combine additional keywords into one value
         if custom_keywords is None: custom_keywords = []
-        extra_keywords = ' '.join([str(k) for k in custom_keywords])
+        extra_keywords = ' '.join(str(k) for k in custom_keywords)
 
         # Compile a list of keywords with which to search for similar profiles
         for tup in keywords_tuple_list:
@@ -412,7 +412,7 @@ class person:
 
         # Print the information of the social profiles
         print('Social profiles: {} ({} profiles)'.format(
-            ', '.join([p.platform for p in self.get_profiles()]), 
+            ', '.join(p.platform for p in self.get_profiles()), 
             len(self.profiles)))
 
         if len(self.profiles) > 0:
