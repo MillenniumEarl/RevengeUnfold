@@ -19,7 +19,7 @@ _anonymous_client_blocked = False
 
 # Manage 429 rate limit for anonymous client
 def too_many_requests_hook(exctype, value, traceback):
-    if exctype == ConnectionException and 'redirected to login' in str(ex):
+    if exctype == ConnectionException and 'redirected to login' in str(value):
         _anonymous_client_blocked = True
     else:
         sys.__excepthook__(exctype, value, traceback)
@@ -182,16 +182,16 @@ class ig_scraper:
 
         try:
             # Ottiene i profili simili
-            profiles = ig_profile.get_similar_accounts()
-            profiles = [profile for profile in profiles]
+            ig_profiles = ig_profile.get_similar_accounts()
+            ig_profiles = [profile for profile in ig_profiles]
 
             # Limita il numero di profili
-            if len(profiles) > max_profiles:
-                profiles = profiles[:max_profiles]
+            if len(ig_profiles) > max_profiles:
+                ig_profiles = ig_profiles[:max_profiles]
 
             # Convert the profile
             converted_profiles = []
-            for p in profiles:
+            for p in ig_profiles:
                 ig_profile = self._convert_profile_from_instaloader(p)
                 converted_profiles.append(ig_profile)
 
@@ -283,23 +283,23 @@ class ig_scraper:
             return []
 
         try:
-            # Unisce le keywords
+            # Join the keywords
             keywords = [str(i) for i in keywords if i is not None]
             keyword = ' '.join(keywords).strip()
             if keyword == '':
                 return []
 
-            # Ricerca i profili
+            # Search for profiles
             results = instaloader.TopSearchResults(self._ig_client.context, keyword)
-            profiles = [profile for profile in results.get_profiles()]
+            ig_profiles = [profile for profile in results.get_profiles()]
 
-            # Limita il numero di profili
-            if len(profiles) > max_profiles:
-                profiles = profiles[:max_profiles]
+            # Limit the number of profiles
+            if len(ig_profiles) > max_profiles:
+                ig_profiles = ig_profiles[:max_profiles]
 
             # Convert the profile
             converted_profiles = []
-            for p in profiles:
+            for p in ig_profiles:
                 ig_profile = self._convert_profile_from_instaloader(p)
                 converted_profiles.append(ig_profile)
 

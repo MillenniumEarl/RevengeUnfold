@@ -140,8 +140,8 @@ def visualize_result():
         print(colored('[', 'red') + str(index) + colored(']', 'red') + ': {} (Identifiability: {})'.format(p.get_full_name(), p.get_identifiability()))
         index += 1
 
-    exit = False
-    while not exit:
+    exit_bool = False
+    while not exit_bool:
         print(colored('[SYSTEM]', 'green') + ' Select a profile to view its details or 0 to exit: ', end='')
         selected_index = input()
 
@@ -154,7 +154,7 @@ def visualize_result():
             continue
         elif selected_index == 0:
             print(colored('[SYSTEM]', 'green') + ' Closing visualizer')
-            exit = True
+            exit_bool = True
             continue
 
         # Show the details of the selected profile

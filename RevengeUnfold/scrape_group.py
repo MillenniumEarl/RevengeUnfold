@@ -9,7 +9,6 @@ import tkinter as tk
 from tkinter import filedialog
 
 ############### External Modules Imports ###############
-from instaloader.exceptions import ConnectionException
 from termcolor import colored
 from tqdm import tqdm
 
@@ -594,7 +593,7 @@ def resume_scrape_session():
     # Vengono scaricate le foto profilo degli utenti Facebook
     ids_list = database.get_uncheked_people_ids_for_platform(_db_path, 'Facebook')
     fb_people_list = [p for p in people_profiles if p.id in ids_list]
-    #_scrape_facebook(fb_people_list, people_save_dir)
+    _scrape_facebook(fb_people_list, people_save_dir)
 
     # Vengono scaricate le foto profilo degli utenti Instagram
     ids_list = database.get_uncheked_people_ids_for_platform(_db_path, 'Instagram')

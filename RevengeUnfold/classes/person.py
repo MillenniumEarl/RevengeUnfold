@@ -1,9 +1,6 @@
 ############### External Modules Imports ###############
 import photohash
 
-############### Local Modules Imports ###############
-from classes import profiles
-
 # Global constants
 NAME_MIN_LENGHT = 4
 MIN_MATCH_THREESHOLD = 5
