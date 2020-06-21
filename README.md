@@ -1,5 +1,6 @@
 # RevengeUnfold
 [![DeepSource](https://static.deepsource.io/deepsource-badge-light-mini.svg)](https://deepsource.io/gh/MillenniumEarl/RevengeUnfold/?ref=repository-badge)
+https://www.code-inspector.com/project/9565/score/svg
 
 At the beginning of April 2020, a network of Telegram groups and channels [was discovered in Italy](https://www.repubblica.it/tecnologia/social-network/2020/04/04/news/revenge_porn_e_pedopornografia_telegram_e_diventato_il_far_west_dell_abuso_su_ex_partner_e_minori-253126954/), with about 50,000 members, who shared child pornography and intimate photos/videos of former partners (RevengePorn).
 
