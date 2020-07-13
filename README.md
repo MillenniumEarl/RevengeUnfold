@@ -1,6 +1,7 @@
 # RevengeUnfold
 [![DeepSource](https://static.deepsource.io/deepsource-badge-light-mini.svg)](https://deepsource.io/gh/MillenniumEarl/RevengeUnfold/?ref=repository-badge)
 [![Code Quality Score](https://www.code-inspector.com/project/9565/score/svg)](https://frontend.code-inspector.com/public/project/9565/RevengeUnfold/dashboard)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FMillenniumEarl%2FRevengeUnfold.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FMillenniumEarl%2FRevengeUnfold?ref=badge_shield)
 
 At the beginning of April 2020, a network of Telegram groups and channels [was discovered in Italy](https://www.repubblica.it/tecnologia/social-network/2020/04/04/news/revenge_porn_e_pedopornografia_telegram_e_diventato_il_far_west_dell_abuso_su_ex_partner_e_minori-253126954/), with about 50,000 members, who shared child pornography and intimate photos/videos of former partners (RevengePorn).
 
@@ -92,3 +93,7 @@ The project contains both the individual modules for platform scraping and the a
 This is the first public project that I develop and I have tried to make the code as comprehensible as possible. If anyone wants to modify, optimize or improve the code, they are welcome!
 I also realize that the project is relatively vast and touches several platforms. I do not guarantee it but I will try, in my spare time from university, to write a wiki documenting the code. 
 For now I will try to translate the comments from Italian to English (at the beginning I didn't think I would share it :grimacing:)
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FMillenniumEarl%2FRevengeUnfold.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FMillenniumEarl%2FRevengeUnfold?ref=badge_large)
