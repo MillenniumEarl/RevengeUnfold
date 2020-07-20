@@ -23,11 +23,14 @@ MESSAGE_CLIENT_BLOCKED = 'Instagram client has been blocked, please try again in
 SESSION_FILE_NAME = 'session.ig_session'
 
 # Manage 429 rate limit for anonymous client
+
+
 def too_many_requests_hook(exctype, value, traceback):
     if exctype == ConnectionException and 'redirected to login' in str(value):
         _anonymous_client_blocked = True
     else:
         sys.__excepthook__(exctype, value, traceback)
+
 
 sys.excepthook = too_many_requests_hook
 
@@ -45,6 +48,7 @@ DOWNLOAD_IMAGE_ERROR = 403
 LOGIN_GENERIC_ERROR = 404
 TOO_MANY_ANON_REQUESTS = 405
 TOO_MANY_REQUESTS = 406
+
 
 class ig_scraper:
     """Class that represents an Instaloader instance and allows Instagram scraping
@@ -82,7 +86,7 @@ class ig_scraper:
        Get the location history of an Instagram profile
     """
 
-    def __init__(self, logger:Type['logging.Logger']=None):
+    def __init__(self, logger: Type['logging.Logger'] = None):
         """
         Parameters
         ----------
@@ -90,17 +94,17 @@ class ig_scraper:
            Logger used to save events
            Default None
         """
-        self._ig_client:Type[instaloader.Instaloader] = None
-        self._logger:Type['logging.Logger'] = logger
-        self.is_blocked:bool = False
-        self.is_logged:bool = False
-        self.is_initialized:bool = False
-        self.errors:List[scraper_error.scraper_error] = []
+        self._ig_client: Type[instaloader.Instaloader] = None
+        self._logger: Type['logging.Logger'] = logger
+        self.is_blocked: bool = False
+        self.is_logged: bool = False
+        self.is_initialized: bool = False
+        self.errors: List[scraper_error.scraper_error] = []
 
-    def _manage_error(self, error_code:int, ex:Exception):
+    def _manage_error(self, error_code: int, ex: Exception):
         """It manages errors and their writing on logger
 
-        Save errors on self.errors and, if a logger has been specified, 
+        Save errors on self.errors and, if a logger has been specified,
         write an error message
 
         Parameters
@@ -112,25 +116,37 @@ class ig_scraper:
         """
 
         # Save the error in the list
-        self.errors.append(scraper_error.scraper_error(error_code, ex, datetime.datetime.now()))
-        if ex is not None: message = 'CODE: {} - {}'.format(error_code, str(ex))
-        else: message = 'CODE: {}'.format(error_code)
+        self.errors.append(
+            scraper_error.scraper_error(
+                error_code, ex, datetime.datetime.now()))
+        if ex is not None:
+            message = 'CODE: {} - {}'.format(error_code, str(ex))
+        else:
+            message = 'CODE: {}'.format(error_code)
 
         # Writes the message to the log file
         if self._logger is not None:
-            if error_code >= 400: self._logger.error(message)
-            else: self._logger.warning(message)
+            if error_code >= 400:
+                self._logger.error(message)
+            else:
+                self._logger.warning(message)
 
         # Check if the user has been blocked and end the scraping
         if error_code == TOO_MANY_ANON_REQUESTS:
-            if self._logger is not None: self._logger.warning('Changing from anonymous client to logged client')
-            self.login(password_manager.ig_username, password_manager.ig_password)
+            if self._logger is not None:
+                self._logger.warning(
+                    'Changing from anonymous client to logged client')
+            self.login(
+                password_manager.ig_username,
+                password_manager.ig_password)
         elif error_code == TOO_MANY_REQUESTS:
-            if self._logger is not None: self._logger.critical('Too many request, closing client...')
+            if self._logger is not None:
+                self._logger.critical('Too many request, closing client...')
             self.is_blocked = True
             self.terminate()
 
-    def _connect_instagram_client(self, username:str, password:str, anonymous:bool=True)->bool:
+    def _connect_instagram_client(
+            self, username: str, password: str, anonymous: bool = True) -> bool:
         """Create and connect an Instagram client
 
         If anonymous = True the credentials will not be used (they can be any value)
@@ -144,7 +160,7 @@ class ig_scraper:
         anonymous: bool
             Connection anonymously (without credentials)
             Default True
-         
+
         Return
         ------
         bool
@@ -184,7 +200,8 @@ class ig_scraper:
                 'Successfully connected to user {}'.format(generic.only_ASCII(username)))
         return True
 
-    def _convert_profile_from_instaloader(self, instaloader_profile:Type[instaloader.Profile])->profiles.instagram_profile:
+    def _convert_profile_from_instaloader(
+            self, instaloader_profile: Type[instaloader.Profile]) -> profiles.instagram_profile:
         """Convert an Instaloader profile to a classes.profiles.instagram_profile
 
         Parameters
@@ -200,7 +217,8 @@ class ig_scraper:
 
         # Check if the client is blocked
         if _anonymous_client_blocked and not self.is_logged:
-            ex = exceptions.TooManyRequests(MESSAGE_TOO_MANY_REQUESTS_ANONYMOUS)
+            ex = exceptions.TooManyRequests(
+                MESSAGE_TOO_MANY_REQUESTS_ANONYMOUS)
             self._manage_error(TOO_MANY_ANON_REQUESTS, ex)
 
         # Copy the data
@@ -220,7 +238,8 @@ class ig_scraper:
 
         return ig_profile
 
-    def find_similar_profiles(self, ig_profile:Type[instaloader.Profile], max_profiles:int=10)->List[profiles.instagram_profile]:
+    def find_similar_profiles(
+            self, ig_profile: Type[instaloader.Profile], max_profiles: int = 10) -> List[profiles.instagram_profile]:
         """Find profiles similar to the one specified
 
         You need to be logged in to use this function
@@ -275,7 +294,8 @@ class ig_scraper:
             self._manage_error(CLIENT_GENERIC_ERROR, ex)
             return []
 
-    def find_user_by_username(self, username:str)->profiles.instagram_profile:
+    def find_user_by_username(
+            self, username: str) -> profiles.instagram_profile:
         """Find an Instagram profile by username
 
         Parameters
@@ -292,7 +312,8 @@ class ig_scraper:
         # Check if the client is blocked
         global _anonymous_client_blocked
         if _anonymous_client_blocked and not self.is_logged:
-            ex = exceptions.TooManyRequests(MESSAGE_TOO_MANY_REQUESTS_ANONYMOUS)
+            ex = exceptions.TooManyRequests(
+                MESSAGE_TOO_MANY_REQUESTS_ANONYMOUS)
             self._manage_error(TOO_MANY_ANON_REQUESTS, ex)
 
         # Check if the logged client is blocked
@@ -302,7 +323,8 @@ class ig_scraper:
             return []
 
         try:
-            profile_found = instaloader.Profile.from_username(self._ig_client.context, username)
+            profile_found = instaloader.Profile.from_username(
+                self._ig_client.context, username)
 
             # Convert the profile
             ig_profile = self._convert_profile_from_instaloader(profile_found)
@@ -317,11 +339,13 @@ class ig_scraper:
         except ConnectionException as ex:
             if 'redirected to login' in str(ex):
                 _anonymous_client_blocked = True
-                ex = exceptions.TooManyRequests(MESSAGE_TOO_MANY_REQUESTS_ANONYMOUS)
+                ex = exceptions.TooManyRequests(
+                    MESSAGE_TOO_MANY_REQUESTS_ANONYMOUS)
                 self._manage_error(TOO_MANY_ANON_REQUESTS, ex)
                 return self.find_user_by_username(username)
             elif '429 Too Many Requests' in str(ex) and self.is_logged:
-                ex = exceptions.TooManyRequests(MESSAGE_TOO_MANY_REQUESTS_LOGGED)
+                ex = exceptions.TooManyRequests(
+                    MESSAGE_TOO_MANY_REQUESTS_LOGGED)
                 self._manage_error(TOO_MANY_REQUESTS, ex)
                 return None
             else:
@@ -331,7 +355,8 @@ class ig_scraper:
             self._manage_error(CLIENT_GENERIC_ERROR, ex)
             return None
 
-    def find_users_by_keywords(self, *keywords, max_profiles:int=10)->List[profiles.instagram_profile]:
+    def find_users_by_keywords(
+            self, *keywords, max_profiles: int = 10) -> List[profiles.instagram_profile]:
         """Search for Instagram profiles based on the keywords used
 
         Parameters
@@ -351,7 +376,8 @@ class ig_scraper:
         # Check if the client is blocked
         global _anonymous_client_blocked
         if _anonymous_client_blocked and not self.is_logged:
-            ex = exceptions.TooManyRequests(MESSAGE_TOO_MANY_REQUESTS_ANONYMOUS)
+            ex = exceptions.TooManyRequests(
+                MESSAGE_TOO_MANY_REQUESTS_ANONYMOUS)
             self._manage_error(TOO_MANY_ANON_REQUESTS, ex)
 
         # Check if the logged client is blocked
@@ -368,7 +394,8 @@ class ig_scraper:
                 return []
 
             # Search for profiles
-            results = instaloader.TopSearchResults(self._ig_client.context, keyword)
+            results = instaloader.TopSearchResults(
+                self._ig_client.context, keyword)
             ig_profiles = [profile for profile in results.get_profiles()]
 
             # Limit the number of profiles
@@ -389,11 +416,13 @@ class ig_scraper:
         except ConnectionException as ex:
             if 'redirected to login' in str(ex):
                 _anonymous_client_blocked = True
-                ex = exceptions.TooManyRequests(MESSAGE_TOO_MANY_REQUESTS_ANONYMOUS)
+                ex = exceptions.TooManyRequests(
+                    MESSAGE_TOO_MANY_REQUESTS_ANONYMOUS)
                 self._manage_error(TOO_MANY_ANON_REQUESTS, ex)
                 return self.find_users_by_keywords(keywords, max_profiles)
             elif '429 Too Many Requests' in str(ex) and self.is_logged:
-                ex = exceptions.TooManyRequests(MESSAGE_TOO_MANY_REQUESTS_LOGGED)
+                ex = exceptions.TooManyRequests(
+                    MESSAGE_TOO_MANY_REQUESTS_LOGGED)
                 self._manage_error(TOO_MANY_REQUESTS, ex)
                 return None
             else:
@@ -403,7 +432,8 @@ class ig_scraper:
             self._manage_error(CLIENT_GENERIC_ERROR, ex)
             return []
 
-    def download_post_images(self, ig_profile:Type[instaloader.Profile], save_dir:str, max_posts:int=20)->bool:
+    def download_post_images(
+            self, ig_profile: Type[instaloader.Profile], save_dir: str, max_posts: int = 20) -> bool:
         """Download the images in the posts of a specified profile
 
         Parameters
@@ -425,7 +455,8 @@ class ig_scraper:
         # Check if the client is blocked
         global _anonymous_client_blocked
         if _anonymous_client_blocked and not self.is_logged:
-            ex = exceptions.TooManyRequests(MESSAGE_TOO_MANY_REQUESTS_ANONYMOUS)
+            ex = exceptions.TooManyRequests(
+                MESSAGE_TOO_MANY_REQUESTS_ANONYMOUS)
             self._manage_error(TOO_MANY_ANON_REQUESTS, ex)
 
         # Check if the logged client is blocked
@@ -435,18 +466,22 @@ class ig_scraper:
             return []
 
         # Get the list of posts
-        try: post_list = ig_profile.get_posts()
+        try:
+            post_list = ig_profile.get_posts()
         except PrivateProfileNotFollowedException as ex:
             self._manage_error(PRIVATE_PROFILE_NOT_FOLLOWED, ex)
             return False
         except ConnectionException as ex:
             if 'redirected to login' in str(ex):
                 _anonymous_client_blocked = True
-                ex = exceptions.TooManyRequests(MESSAGE_TOO_MANY_REQUESTS_ANONYMOUS)
+                ex = exceptions.TooManyRequests(
+                    MESSAGE_TOO_MANY_REQUESTS_ANONYMOUS)
                 self._manage_error(TOO_MANY_ANON_REQUESTS, ex)
-                return self.download_post_images(ig_profile, save_dir, max_posts)
+                return self.download_post_images(
+                    ig_profile, save_dir, max_posts)
             elif '429 Too Many Requests' in str(ex) and self.is_logged:
-                ex = exceptions.TooManyRequests(MESSAGE_TOO_MANY_REQUESTS_LOGGED)
+                ex = exceptions.TooManyRequests(
+                    MESSAGE_TOO_MANY_REQUESTS_LOGGED)
                 self._manage_error(TOO_MANY_REQUESTS, ex)
                 return None
             else:
@@ -468,8 +503,10 @@ class ig_scraper:
             post_index = 0
             for post in post_list:
                 try:
-                    savepath = os.path.join(save_dir, '{}.jpg'.format(post_index))
-                    self._ig_client.download_pic(savepath, post.url, post.date_utc)
+                    savepath = os.path.join(
+                        save_dir, '{}.jpg'.format(post_index))
+                    self._ig_client.download_pic(
+                        savepath, post.url, post.date_utc)
                     post_index += 1
                 except Exception as ex:
                     self._manage_error(DOWNLOAD_IMAGE_ERROR, ex)
@@ -477,18 +514,22 @@ class ig_scraper:
         except ConnectionException as ex:
             if 'redirected to login' in str(ex):
                 _anonymous_client_blocked = True
-                ex = exceptions.TooManyRequests(MESSAGE_TOO_MANY_REQUESTS_ANONYMOUS)
+                ex = exceptions.TooManyRequests(
+                    MESSAGE_TOO_MANY_REQUESTS_ANONYMOUS)
                 self._manage_error(TOO_MANY_ANON_REQUESTS, ex)
-                return self.download_post_images(ig_profile, save_dir, max_posts)
+                return self.download_post_images(
+                    ig_profile, save_dir, max_posts)
             elif '429 Too Many Requests' in str(ex) and self.is_logged:
-                ex = exceptions.TooManyRequests(MESSAGE_TOO_MANY_REQUESTS_LOGGED)
+                ex = exceptions.TooManyRequests(
+                    MESSAGE_TOO_MANY_REQUESTS_LOGGED)
                 self._manage_error(TOO_MANY_REQUESTS, ex)
                 return None
             else:
                 self._manage_error(DOWNLOAD_IMAGE_ERROR, ex)
                 return None
 
-    def download_profile_photo(self, ig_profile:Type[instaloader.Profile], save_dir:str)->bool:
+    def download_profile_photo(
+            self, ig_profile: Type[instaloader.Profile], save_dir: str) -> bool:
         """Download the profile photo of the specified Instagram profile
 
         Download the image and save it in the directory specified with the name 'profile.jpg'
@@ -509,7 +550,8 @@ class ig_scraper:
         # Check if the client is blocked
         global _anonymous_client_blocked
         if _anonymous_client_blocked and not self.is_logged:
-            ex = exceptions.TooManyRequests(MESSAGE_TOO_MANY_REQUESTS_ANONYMOUS)
+            ex = exceptions.TooManyRequests(
+                MESSAGE_TOO_MANY_REQUESTS_ANONYMOUS)
             self._manage_error(TOO_MANY_ANON_REQUESTS, ex)
 
         # Check if the logged client is blocked
@@ -521,28 +563,31 @@ class ig_scraper:
         # Get the profile photo and save it in the specified folder
         try:
             self._ig_client.download_pic(
-                filename=os.path.join(save_dir,'profile.jpg'),
+                filename=os.path.join(save_dir, 'profile.jpg'),
                 url=ig_profile.profile_pic_url,
                 mtime=datetime.datetime.now())
             return True
         except ConnectionException as ex:
             if 'redirected to login' in str(ex):
                 _anonymous_client_blocked = True
-                ex = exceptions.TooManyRequests(MESSAGE_TOO_MANY_REQUESTS_ANONYMOUS)
+                ex = exceptions.TooManyRequests(
+                    MESSAGE_TOO_MANY_REQUESTS_ANONYMOUS)
                 self._manage_error(TOO_MANY_ANON_REQUESTS, ex)
                 return self.download_profile_photo(ig_profile, save_dir)
             elif '429 Too Many Requests' in str(ex) and self.is_logged:
-                ex = exceptions.TooManyRequests(MESSAGE_TOO_MANY_REQUESTS_LOGGED)
+                ex = exceptions.TooManyRequests(
+                    MESSAGE_TOO_MANY_REQUESTS_LOGGED)
                 self._manage_error(TOO_MANY_REQUESTS, ex)
-                return None # TODO
+                return None  # TODO
             else:
                 self._manage_error(DOWNLOAD_IMAGE_ERROR, ex)
-                return None # TODO
+                return None  # TODO
         except Exception as ex:
             self._manage_error(DOWNLOAD_IMAGE_ERROR, ex)
             return False
 
-    def get_location_history(self, ig_profile:Type[instaloader.Profile])->List[location.location]:
+    def get_location_history(
+            self, ig_profile: Type[instaloader.Profile]) -> List[location.location]:
         """Get all post geotags for a specific Instagram profile
 
         You need to be logged in to use this function
@@ -584,17 +629,22 @@ class ig_scraper:
             return []
 
         # Save the geotags of the selected media
-        post_with_location = [post for post in post_list if post.location is not None]
+        post_with_location = [
+            post for post in post_list if post.location is not None]
         for post in post_with_location:
             loc = location.location()
 
             # Get location from coordinates
             if post.location.lat is not None and post.location.lng is not None:
-                loc.from_coordinates(post.location.lat, post.location.lng, post.date_utc)
+                loc.from_coordinates(
+                    post.location.lat,
+                    post.location.lng,
+                    post.date_utc)
                 locations_list.append(loc)
             elif post.location.name is not None:
                 loc.from_name(post.location.name, post.date_utc)
-                if loc.is_valid: locations_list.append(loc)
+                if loc.is_valid:
+                    locations_list.append(loc)
 
         # Sorts the list from the most recent to the least recent location
         locations_list.sort(key=lambda loc: loc.utc_time, reverse=True)
@@ -618,7 +668,7 @@ class ig_scraper:
         if self._logger is not None:
             self._logger.info('ig_scraper successfully closed')
 
-    def login_anonymously(self)->bool:
+    def login_anonymously(self) -> bool:
         """Log in to Instagram anonymously
 
         Return
@@ -633,11 +683,14 @@ class ig_scraper:
         if self._connect_instagram_client('', '', anonymous=True):
             self.is_initialized = True
             self.is_logged = False
-            if self._logger is not None: self._logger.info('Anonymous Instagram client instanced correctly')
+            if self._logger is not None:
+                self._logger.info(
+                    'Anonymous Instagram client instanced correctly')
             return True
-        else: return False
+        else:
+            return False
 
-    def login(self, username:str, password:str)->bool:
+    def login(self, username: str, password: str) -> bool:
         """Log in to Instagram using your credentials
 
         Parameters
@@ -664,4 +717,5 @@ class ig_scraper:
                 self._logger.info(
                     'Instagram client correctly started (user {})'.format(generic.only_ASCII(username)))
             return True
-        else: return False
+        else:
+            return False

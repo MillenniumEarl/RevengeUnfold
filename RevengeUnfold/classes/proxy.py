@@ -1,6 +1,7 @@
 ############### External Modules Imports ###############
 from fp.fp import FreeProxy
 
+
 class proxy:
     """Wrapper class that can be used to get a proxy server at run-time
 
@@ -11,17 +12,18 @@ class proxy:
     country_code_list: list
         List of international prefixes ('IT', 'FR', 'US', 'DE', ...) corresponding to the locations of the usable proxy servers
     """
-    def __init__(self, country_code_list:list=None):
+
+    def __init__(self, country_code_list: list = None):
         """
         Parameters
         ----------
         country_code_list: list
             List of international prefixes ('IT', 'FR', 'US', 'DE', ...) corresponding to the locations of the usable proxy servers
         """
-        self.country_code_list:list = country_code_list
-        self.proxy:str = None
+        self.country_code_list: list = country_code_list
+        self.proxy: str = None
 
-    def get(self, rand:bool=True, max_timeout:float=2)->str:
+    def get(self, rand: bool = True, max_timeout: float = 2) -> str:
         """Gets a HTTP proxy server
 
         Parameters
@@ -48,5 +50,6 @@ class proxy:
         else:
             self.proxy = FreeProxy(rand=rand, timeout=max_timeout).get()
 
-        if not 'http' in self.proxy: self.proxy = None
+        if not 'http' in self.proxy:
+            self.proxy = None
         return self.proxy

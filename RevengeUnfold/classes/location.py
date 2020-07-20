@@ -1,10 +1,11 @@
 ############### External Modules Imports ###############
 from geopy.geocoders import Nominatim
 
+
 class location:
     """
     Class used to represents a place
-    
+
     Attributes
     ----------
     name: str
@@ -27,23 +28,26 @@ class location:
     from_name(name, time_detection)
         Get the info about a place from it's name
     """
-    def __init__(self):
-        self.name:str = None
-        self.time:'datetime.datetime' = None
-        self.latitude:float = None
-        self.longitude:float = None
-        self.altitude:float = None
-        self.is_valid:bool = False
 
-    def __eq__(self, other): 
+    def __init__(self):
+        self.name: str = None
+        self.time: 'datetime.datetime' = None
+        self.latitude: float = None
+        self.longitude: float = None
+        self.altitude: float = None
+        self.is_valid: bool = False
+
+    def __eq__(self, other):
         if not isinstance(other, location):
             # Don't attempt to compare against unrelated types
             return False
-        if not self.is_valid and not other.is_valid: return False
+        if not self.is_valid and not other.is_valid:
+            return False
 
         return self.latitude == other.latitude and self.longitude == other.longitude
 
-    def from_coordinates(self, latitude:str, longitude:str, time_detection:'datetime.datetime'=None):
+    def from_coordinates(self, latitude: str, longitude: str,
+                         time_detection: 'datetime.datetime' = None):
         """Save the location of a place based on its coordinates
 
         Parameters
@@ -58,7 +62,8 @@ class location:
 
         # Gets the information given the coordinates
         geolocator = Nominatim(user_agent='RevengeUnfold')
-        reverse_location = geolocator.reverse('{}, {}'.format(latitude, longitude))
+        reverse_location = geolocator.reverse(
+            '{}, {}'.format(latitude, longitude))
 
         # Save the data
         if reverse_location is not None:
@@ -68,9 +73,10 @@ class location:
             self.altitude = reverse_location.altitude
             self.time = time_detection
             self.is_valid = True
-        else: self.is_valid = False
+        else:
+            self.is_valid = False
 
-    def from_name(self, name:str, time_detection:'datetime.datetime'=None):
+    def from_name(self, name: str, time_detection: 'datetime.datetime' = None):
         """Save the location of a place based on its name
 
         Parameters
@@ -93,4 +99,5 @@ class location:
             self.altitude = reverse_location.altitude
             self.time = time_detection
             self.is_valid = True
-        else: self.is_valid = False
+        else:
+            self.is_valid = False

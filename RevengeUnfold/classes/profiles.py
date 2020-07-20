@@ -42,18 +42,19 @@ class base_profile:
     is_elaborated: bool
         Value indicating whether the profile has been processed and is ready for comparison with other profiles
     """
+
     def __init__(self):
-        self.platform:str = None
-        self.user_id:int = None
-        self.username:str = None
-        self.first_name:str = None
-        self.last_name:str = None
-        self.full_name:str = None
-        self.phone:Type[phone] = None
-        self.locations:List[Type['classes.location']] = []
-        self.is_elaborated:bool = False
-        self._face_encodings:list = []
-        self._perceptual_hashes:list = []
+        self.platform: str = None
+        self.user_id: int = None
+        self.username: str = None
+        self.first_name: str = None
+        self.last_name: str = None
+        self.full_name: str = None
+        self.phone: Type[phone] = None
+        self.locations: List[Type['classes.location']] = []
+        self.is_elaborated: bool = False
+        self._face_encodings: list = []
+        self._perceptual_hashes: list = []
 
     def __getstate__(self):
         return self.__dict__
@@ -78,7 +79,7 @@ class base_profile:
             print('No phone associated')
         else:
             print('Associated phone: {} - {}, {}'.format(self.phone.number,
-                                                           self.phone.carrier, self.phone.geolocation))
+                                                         self.phone.carrier, self.phone.geolocation))
 
         # Print information on the last visited location
         if len(self.locations) > 0:
@@ -91,11 +92,11 @@ class base_profile:
                     self.locations[0].latitude,
                     self.locations[0].longitude))
 
-    def compare_profile(self, profile:base_profile)->int:
+    def compare_profile(self, profile: base_profile) -> int:
         """Compare the profile with another profile to see if they belong to the same person
 
-        Compare the profile with the one passed as a parameter and compare the general information, 
-        the phone data, the locations visited, the correspondence of faces in the photos associated 
+        Compare the profile with the one passed as a parameter and compare the general information,
+        the phone data, the locations visited, the correspondence of faces in the photos associated
         with the profiles and the similarities of the images through perceptual hashes
 
         Parameters
@@ -122,10 +123,12 @@ class base_profile:
                 match += 1
 
         # Gets the normalized full name of the current profile
-        this_fullname = self.full_name.lower() if self.full_name is not None else concat(self.first_name, self.last_name).lower()
+        this_fullname = self.full_name.lower() if self.full_name is not None else concat(
+            self.first_name, self.last_name).lower()
 
         # Gets the normalized full name of the compared profile
-        profile_fullname = profile.full_name.lower() if profile.full_name is not None else concat(profile.first_name, profile.last_name).lower()
+        profile_fullname = profile.full_name.lower() if profile.full_name is not None else concat(
+            profile.first_name, profile.last_name).lower()
 
         if this_fullname in profile_fullname or profile_fullname in this_fullname:
             match += 1
@@ -151,12 +154,12 @@ class base_profile:
 
         return match
 
-    def _find_faces_profile_photos(self, image_dir:str):
+    def _find_faces_profile_photos(self, image_dir: str):
         """Identify the faces in the images located in the folder passed by parameter and encode them for face recognition
 
-        Parameters
+                Parameters
         ----------
-        image_dir: str
+                image_dir: str
             Path to the image directory
         """
 
@@ -180,12 +183,12 @@ class base_profile:
             else:
                 self._face_encodings.extend(face_encodings)
 
-    def _elaborate_perceptual_hash_media(self, image_dir:str):
+    def _elaborate_perceptual_hash_media(self, image_dir: str):
         """Processes the perceptual hashes for the images in the folder passed by parameter
 
-        Parameters
+                Parameters
         ----------
-        image_dir: str
+                image_dir: str
             Path to the image directory
         """
 
@@ -203,7 +206,7 @@ class base_profile:
 
 class telegram_profile(base_profile):
     """
-    Class representing a Telegram account. 
+    Class representing a Telegram account.
     Derived from base_profile.
 
     Attributes
@@ -211,23 +214,25 @@ class telegram_profile(base_profile):
     platform: str
         Name of the platform: Telegram
     """
+
     def __init__(self):
         base_profile.__init__(self)
-        self.platform:str = 'Telegram'
+        self.platform: str = 'Telegram'
         self._tg_profile = None
 
-    def get_profile_from_tg_profile(self, tg_profile:Type[tg_functions.TelegramClient])->bool:
+    def get_profile_from_tg_profile(
+            self, tg_profile: Type[tg_functions.TelegramClient]) -> bool:
         """Given a Telegram profile fill in the fields of the current profile
 
-        Parameters
+                Parameters
         ----------
-        tg_profile: tg_functions.TelegramClient (telethon.sync.TelegramClient)
+                tg_profile: tg_functions.TelegramClient (telethon.sync.TelegramClient)
             Telegram client (Telethon) from which to extrapolate the data
 
-        Return
+                Return
         ------
         bool
-            True if the operation is successful, False otherwise
+                        True if the operation is successful, False otherwise
         """
 
         self._tg_profile = tg_profile
@@ -243,21 +248,22 @@ class telegram_profile(base_profile):
             self.phone = phone.phone(tg_profile.phone)
         return True
 
-    def get_profile_from_userid(self, userid:int, tg_client:Type[tg_functions.TelegramClient]=None)->bool:
+    def get_profile_from_userid(
+            self, userid: int, tg_client: Type[tg_functions.TelegramClient] = None) -> bool:
         """Gets the data of a Telegram profile starting from the ID of that profile
 
-        Parameters
+                Parameters
         ----------
-        userid: int
+                userid: int
             ID of the Telegram user
-        tg_client: tg_functions.TelegramClient (telethon.sync.TelegramClient), optional
+                tg_client: tg_functions.TelegramClient (telethon.sync.TelegramClient), optional
             Telegram client (Telethon) from which to extrapolate the data. If not specified, a new one is instantiated
 
-        Return
+                Return
         ------
         bool
-            False if the ID does not exist
-            True if the operation is successful
+                        False if the ID does not exist
+                        True if the operation is successful
         """
 
         # Search for the profile on Telegram
@@ -271,51 +277,57 @@ class telegram_profile(base_profile):
         else:
             return self.get_profile_from_tg_profile(profile)
 
-    def get_profile_from_username(self, username:str, tg_client:Type[tg_functions.TelegramClient]=None)->bool:
+    def get_profile_from_username(
+            self, username: str, tg_client: Type[tg_functions.TelegramClient] = None) -> bool:
         """Gets the data of a Telegram profile starting from the username of that profile
 
-        Parameters
+                Parameters
         ----------
-        username: str
+                username: str
             Username (@user) of the Telegram user
-        tg_client: tg_functions.TelegramClient (telethon.sync.TelegramClient), optional
+                tg_client: tg_functions.TelegramClient (telethon.sync.TelegramClient), optional
             Telegram client (Telethon) from which to extrapolate the data. If not specified, a new one is instantiated
 
-        Return
+                Return
         ------
         bool
-            False if the username does not exist
-            True if the operation is successful
+                        False if the username does not exist
+                        True if the operation is successful
         """
 
         # Search for the profile on Telegram
         if tg_client is None:
             with tg_functions.connect_telegram_client(password_manager.tg_phone, password_manager.tg_api_id, password_manager.tg_api_hash) as tg_client_internal:
-                profile = tg_functions.get_profiles(tg_client_internal, username)
-        else: profile = tg_functions.get_profiles(tg_client, username)
-        if profile is None: return False  # If the profile corresponding to the indicated data does not exist, return False
-        
+                profile = tg_functions.get_profiles(
+                    tg_client_internal, username)
+        else:
+            profile = tg_functions.get_profiles(tg_client, username)
+        if profile is None:
+            return False  # If the profile corresponding to the indicated data does not exist, return False
+
         return self.get_profile_from_tg_profile(profile)
 
-    def download_profile_photos(self, save_dir:str, tg_client:Type[tg_functions.TelegramClient]=None)->bool:
+    def download_profile_photos(
+            self, save_dir: str, tg_client: Type[tg_functions.TelegramClient] = None) -> bool:
         """Save user profile images (if any)
-        
-        Parameters
+
+                Parameters
         ----------
-        save_dir: str
+                save_dir: str
             Image saving folder
-        tg_client: tg_functions.TelegramClient (telethon.sync.TelegramClient), optional
+                tg_client: tg_functions.TelegramClient (telethon.sync.TelegramClient), optional
             Telegram client (Telethon) from which to extrapolate the data. If not specified, a new one is instantiated
-        
-        Return
+
+                Return
         ------
         bool
-            False if the current profile has no user id associated
-            True if the operation is successful
-        """
+                        False if the current profile has no user id associated
+                        True if the operation is successful
+                """
 
         if self._tg_profile is None:
-            if self.user_id is None: return False
+            if self.user_id is None:
+                return False
             self.get_profile_from_userid(self.user_id, tg_client)
 
         # Create the folder if it doesn't exist
@@ -325,28 +337,31 @@ class telegram_profile(base_profile):
 
         if tg_client is None:
             with tg_functions.connect_telegram_client(password_manager.tg_phone, password_manager.tg_api_id, password_manager.tg_api_hash) as tg_client_internal:
-                tg_functions.download_users_profile_photos(tg_client_internal, self._tg_profile, save_dir)
+                tg_functions.download_users_profile_photos(
+                    tg_client_internal, self._tg_profile, save_dir)
         else:
-            tg_functions.download_users_profile_photos(tg_client, self._tg_profile, save_dir)
+            tg_functions.download_users_profile_photos(
+                tg_client, self._tg_profile, save_dir)
 
         return True
 
-    def elaborate_images(self, image_dir:str=None, tg_client:Type[tg_functions.TelegramClient]=None)->bool:
+    def elaborate_images(self, image_dir: str = None,
+                         tg_client: Type[tg_functions.TelegramClient] = None) -> bool:
         """Download and process the images associated with the profile to identify faces and hashes of the images
 
-        Parameters
+                Parameters
         ----------
-        image_dir: str, optional
+                image_dir: str, optional
             Path to the image directory (if not specified, a temporary one will be used)
             Default None
-        tg_client: tg_functions.TelegramClient (telethon.sync.TelegramClient), optional
+                tg_client: tg_functions.TelegramClient (telethon.sync.TelegramClient), optional
             Telegram client (Telethon) from which to extrapolate the data. If not specified, a new one is instantiated
 
-        Return
+                Return
         ------
         bool
-            False if the user has no profile pictures
-            True if the operation is successful
+                        False if the user has no profile pictures
+                        True if the operation is successful
         """
 
         # Local variables
@@ -359,7 +374,8 @@ class telegram_profile(base_profile):
         else:
             image_dir = os.path.abspath(image_dir)
 
-        # Check if there are images and download them, otherwise end the function
+        # Check if there are images and download them, otherwise end the
+        # function
         n_images = len([os.path.join(image_dir, name) for name in os.listdir(
             image_dir) if os.path.isfile(os.path.join(image_dir, name))])
         if n_images == 0:
@@ -381,7 +397,7 @@ class telegram_profile(base_profile):
 
 class instagram_profile(base_profile):
     """
-    Class representing an Istagram account. 
+    Class representing an Istagram account.
     Derived from base_profile.
 
     Attributes
@@ -393,30 +409,32 @@ class instagram_profile(base_profile):
     is_private: bool
         True if the Instagram account is private
     """
+
     def __init__(self):
         base_profile.__init__(self)
-        self.platform:str = 'Instagram'
+        self.platform: str = 'Instagram'
         self._ig_profile = None
-        self.biography:str = None
-        self.is_private:bool = None
+        self.biography: str = None
+        self.is_private: bool = None
 
-    def get_profile_from_username(self, ig_scraper:'scrape_functions.ig_functions.ig_scraper', username:str)->bool:
+    def get_profile_from_username(
+            self, ig_scraper: 'scrape_functions.ig_functions.ig_scraper', username: str) -> bool:
         """Gets the data of a Instagram profile starting from the username of that profile
 
         Overwrites data previously saved in the calling profile.
 
-        Parameters
+                Parameters
         ----------
         ig_scraper: scrape_functions.ig_functions.ig_scraper
             Instagram scraper used to get profile data
-        username: str
+                username: str
             Username of the Instagram user
 
-        Return
+                Return
         ------
         bool
-            False if the username does not exist
-            True if the operation is successful
+                        False if the username does not exist
+                        True if the operation is successful
         """
 
         # Look for the profile on Instagram
@@ -424,30 +442,32 @@ class instagram_profile(base_profile):
 
         if profile is None:
             return False  # If the profile corresponding to the indicated data does not exist, returns False
-        
+
         # Else update profile
         self.__dict__.update(profile.__dict__)
         return True
 
-    def download_photos(self, ig_scraper:'scrape_functions.ig_functions.ig_scraper', save_dir:str)->bool:
+    def download_photos(
+            self, ig_scraper: 'scrape_functions.ig_functions.ig_scraper', save_dir: str) -> bool:
         """Save user post' images (if any)
-        
-        Parameters
+
+                Parameters
         ----------
         ig_scraper: scrape_functions.ig_functions.ig_scraper
             Instagram scraper used to get profile data
-        save_dir: str
+                save_dir: str
             Image saving folder
-        
-        Return
+
+                Return
         ------
         bool
-            False if the current profile has no Instagram username associated
-            True if the operation is successful
-        """
+                        False if the current profile has no Instagram username associated
+                        True if the operation is successful
+                """
 
         if self._ig_profile is None:
-            if self.username is None: return False
+            if self.username is None:
+                return False
             self.get_profile_from_username(ig_scraper, self.username)
 
         # Create the folder if it doesn't exist
@@ -459,22 +479,23 @@ class instagram_profile(base_profile):
 
         return True
 
-    def elaborate_images(self, ig_scraper:'scrape_functions.ig_functions.ig_scraper', image_dir:str=None)->bool:
+    def elaborate_images(
+            self, ig_scraper: 'scrape_functions.ig_functions.ig_scraper', image_dir: str = None) -> bool:
         """Download and process the images associated with the profile to identify faces and hashes of the images
 
-        Parameters
+                Parameters
         ----------
         ig_scraper: scrape_functions.ig_functions.ig_scraper
             Instagram scraper used to get profile data
-        image_dir: str, optional
+                image_dir: str, optional
             Path to the image directory (if not specified, a temporary one will be used)
             Default None
 
-        Return
+                Return
         ------
         bool
-            False if the user has no profile pictures
-            True if the operation is successful
+                        False if the user has no profile pictures
+                        True if the operation is successful
         """
 
         # Local variables
@@ -487,7 +508,8 @@ class instagram_profile(base_profile):
         else:
             image_dir = os.path.abspath(image_dir)
 
-        # Check if there are images and download them, otherwise end the function
+        # Check if there are images and download them, otherwise end the
+        # function
         n_images = len([os.path.join(image_dir, name) for name in os.listdir(
             image_dir) if os.path.isfile(os.path.join(image_dir, name))])
         if n_images == 0:
@@ -506,21 +528,22 @@ class instagram_profile(base_profile):
         self.is_elaborated = True
         return True
 
-    def get_locations_history(self, ig_scraper:'scrape_functions.ig_functions.ig_scraper')->bool:
+    def get_locations_history(
+            self, ig_scraper: 'scrape_functions.ig_functions.ig_scraper') -> bool:
         """Gets the places visited by the user
 
         Get all post geotags for a specific Instagram profile and from those all the places visited by the user.
-        You need to be logged in Instagram to use this function.
+                You need to be logged in Instagram to use this function.
 
-        Parameters
+                Parameters
         ----------
-        ig_scraper: scrape_functions.ig_functions.ig_scraper
+                ig_scraper: scrape_functions.ig_functions.ig_scraper
             Logged Instagram scraper used to get profile data
 
-        Return
+                Return
         ------
         bool
-            True if the operation is successful, False otherwise
+                        True if the operation is successful, False otherwise
         """
 
         # A *non* anonymous connection is required
@@ -535,7 +558,7 @@ class instagram_profile(base_profile):
 
 class facebook_profile(base_profile):
     """
-    Class representing a Facebook account. 
+    Class representing a Facebook account.
     Derived from base_profile.
 
     Attributes
@@ -545,28 +568,29 @@ class facebook_profile(base_profile):
     biography: str
         User biography
     """
+
     def __init__(self):
         base_profile.__init__(self)
-        self.platform:str = 'Facebook'
-        self.biography:str = None
+        self.platform: str = 'Facebook'
+        self.biography: str = None
 
-    def get_profile_from_username(self, fb_scraper, username:str)->bool:
+    def get_profile_from_username(self, fb_scraper, username: str) -> bool:
         """Gets the data of a Facebook profile starting from the username of that profile
 
         Overwrites data previously saved in the calling profile.
 
-        Parameters
+                Parameters
         ----------
         fb_scraper: scrape_functions.fb_functions.fb_scraper
             Facebook scraper used to get profile data
-        username: str
+                username: str
             Username of the Facebook user
 
-        Return
+                Return
         ------
         bool
-            False if the username does not exist
-            True if the operation is successful
+                        False if the username does not exist
+                        True if the operation is successful
         """
 
         if not fb_scraper.is_logged:
@@ -576,28 +600,30 @@ class facebook_profile(base_profile):
         profile = fb_scraper.find_user_by_username(username)
 
         # The profile does not exist
-        if profile is None: return False
-        
+        if profile is None:
+            return False
+
         # Update profile
         self.__dict__.update(profile.__dict__)
         return True
 
-    def download_photos(self, fb_scraper:'scrape_functions.fb_functions.fb_scraper', save_dir:str)->bool:
+    def download_photos(
+            self, fb_scraper: 'scrape_functions.fb_functions.fb_scraper', save_dir: str) -> bool:
         """Save user post' images (if any)
-        
-        Parameters
+
+                Parameters
         ----------
         fb_scraper: scrape_functions.fb_functions.fb_scraper
             Facebook scraper used to get profile data
-        save_dir: str
+                save_dir: str
             Image saving folder
-        
-        Return
+
+                Return
         ------
         bool
-            False if the current profile has no Facebook username associated
-            True if the operation is successful
-        """
+                        False if the current profile has no Facebook username associated
+                        True if the operation is successful
+                """
 
         if self.username is None or not fb_scraper.is_logged:
             return False
@@ -611,22 +637,23 @@ class facebook_profile(base_profile):
             self, os.path.join(save_dir, 'profile.jpg'))
         return True
 
-    def elaborate_images(self, fb_scraper:'scrape_functions.fb_functions.fb_scraper', image_dir:str=None)->bool:
+    def elaborate_images(
+            self, fb_scraper: 'scrape_functions.fb_functions.fb_scraper', image_dir: str = None) -> bool:
         """Download and process the images associated with the profile to identify faces and hashes of the images
 
-        Parameters
+                Parameters
         ----------
         fb_scraper: scrape_functions.fb_functions.fb_scraper
             Facebook scraper used to get profile data
-        image_dir: str, optional
+                image_dir: str, optional
             Path to the image directory (if not specified, a temporary one will be used)
             Default None
 
-        Return
+                Return
         ------
         bool
-            False if the user has no profile pictures
-            True if the operation is successful
+                        False if the user has no profile pictures
+                        True if the operation is successful
         """
 
         # Local variables
@@ -639,7 +666,8 @@ class facebook_profile(base_profile):
         else:
             image_dir = os.path.abspath(image_dir)
 
-        # Check if there are images and download them, otherwise end the function
+        # Check if there are images and download them, otherwise end the
+        # function
         n_images = len([os.path.join(image_dir, name) for name in os.listdir(
             image_dir) if os.path.isfile(os.path.join(image_dir, name))])
         if n_images == 0:
@@ -661,7 +689,7 @@ class facebook_profile(base_profile):
 
 class twitter_profile(base_profile):
     """
-    Class representing a Twitter account. 
+    Class representing a Twitter account.
     Derived from base_profile.
 
     Attributes
@@ -671,28 +699,30 @@ class twitter_profile(base_profile):
     biography: str
         User biography
     """
+
     def __init__(self):
         base_profile.__init__(self)
-        self.platform:str = 'Twitter'
-        self.biography:str = None
+        self.platform: str = 'Twitter'
+        self.biography: str = None
 
-    def get_profile_from_username(self, tw_scraper:'scrape_functions.tw_functions.tw_scraper', username:str)->bool:
+    def get_profile_from_username(
+            self, tw_scraper: 'scrape_functions.tw_functions.tw_scraper', username: str) -> bool:
         """Gets the data of a Twitter profile starting from the username of that profile
 
         Overwrites data previously saved in the calling profile.
 
-        Parameters
+                Parameters
         ----------
         tw_scraper: scrape_functions.tw_functions.tw_scraper
             Twitter scraper used to get profile data
-        username: str
+                username: str
             Username of the Facebook user
 
-        Return
+                Return
         ------
         bool
-            False if the username does not exist
-            True if the operation is successful
+                        False if the username does not exist
+                        True if the operation is successful
         """
 
         if not tw_scraper.is_initialized:
@@ -702,28 +732,30 @@ class twitter_profile(base_profile):
         profile = tw_scraper.find_user_by_username(username)
 
         # The profile does not exist
-        if profile is None: return False
-        
+        if profile is None:
+            return False
+
         # Update profile
         self.__dict__.update(profile.__dict__)
-        return True     
+        return True
 
-    def download_photos(self, tw_scraper:'scrape_functions.tw_functions.tw_scraper', save_dir:str)->bool:
+    def download_photos(
+            self, tw_scraper: 'scrape_functions.tw_functions.tw_scraper', save_dir: str) -> bool:
         """Save the last six photos posted and profile photo
-        
-        Parameters
+
+                Parameters
         ----------
         tw_scraper: scrape_functions.tw_functions.tw_scraper
             Twitter scraper used to get profile data
-        save_dir: str
+                save_dir: str
             Image saving folder
-        
-        Return
+
+                Return
         ------
         bool
-            False if the current profile has no Twitter username associated
-            True if the operation is successful
-        """
+                        False if the current profile has no Twitter username associated
+                        True if the operation is successful
+                """
 
         if self.username is None or not tw_scraper.is_initialized:
             return False
@@ -737,22 +769,23 @@ class twitter_profile(base_profile):
             self, os.path.join(save_dir, '{}_profile.jpg'.format(self.username)))
         return True
 
-    def elaborate_images(self, tw_scraper:'scrape_functions.tw_functions.tw_scraper', image_dir:str=None)->bool:
+    def elaborate_images(
+            self, tw_scraper: 'scrape_functions.tw_functions.tw_scraper', image_dir: str = None) -> bool:
         """Download and process the images associated with the profile to identify faces and hashes of the images
 
-        Parameters
+                Parameters
         ----------
         tw_scraper: scrape_functions.tw_functions.tw_scraper
             Twitter scraper used to get profile data
-        image_dir: str, optional
+                image_dir: str, optional
             Path to the image directory (if not specified, a temporary one will be used)
             Default None
 
-        Return
+                Return
         ------
         bool
-            False if the user has no profile pictures
-            True if the operation is successful
+                        False if the user has no profile pictures
+                        True if the operation is successful
         """
 
         # Local variables
@@ -765,7 +798,8 @@ class twitter_profile(base_profile):
         else:
             image_dir = os.path.abspath(image_dir)
 
-        # Check if there are images and download them, otherwise end the function
+        # Check if there are images and download them, otherwise end the
+        # function
         n_images = len([os.path.join(image_dir, name) for name in os.listdir(
             image_dir) if os.path.isfile(os.path.join(image_dir, name))])
         if n_images == 0:

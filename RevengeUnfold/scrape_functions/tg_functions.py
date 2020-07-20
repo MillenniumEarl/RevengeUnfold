@@ -5,6 +5,7 @@ from telethon.tl.functions.messages import GetDialogsRequest
 from telethon.tl.types import InputPeerEmpty
 from telethon import functions
 
+
 def connect_telegram_client(phone_number, api_id, api_hash):
     """
     Crea un client e lo connette a Telegram.
@@ -192,7 +193,8 @@ def get_group_channel_members(tg_client, conversation):
     return all_participants
 
 
-def download_media_from_conversation(tg_client, conversation, save_dir, message_limit=3000):
+def download_media_from_conversation(
+        tg_client, conversation, save_dir, message_limit=3000):
     """
     DON'T USE THIS
     """

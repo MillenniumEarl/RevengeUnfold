@@ -29,7 +29,7 @@ source_code_paths = [
 ################ Definizione funzioni ################
 
 
-def run_script(script:str, output_file:str):
+def run_script(script: str, output_file: str):
     """
     Esegue uno script e salva un file con l'output dello stesso
     """

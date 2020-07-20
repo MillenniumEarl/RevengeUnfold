@@ -20,9 +20,9 @@ def select_function():
     print(colored('[SYSTEM]', 'green') + ' Select operation:')
 
     print(colored('[', 'red') + str(0) + colored(']', 'red') +
-        ' Resume Telegram group scraping')
+          ' Resume Telegram group scraping')
     print(colored('[', 'red') + str(1) + colored(']', 'red') +
-        ' Analyze Telegram group')
+          ' Analyze Telegram group')
     print(colored('[', 'red') + str(2) + colored(']', 'red') +
           ' View Telegram group analysis results')
     print(colored('[', 'red') + str(3) + colored(']', 'red') +

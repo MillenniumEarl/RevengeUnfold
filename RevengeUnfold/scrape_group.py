@@ -21,7 +21,8 @@ import password_manager
 
 ############### Variabili globali ###############
 _terminate_program = False
-_scrape_logger, _fb_logger, _ig_logger, _tg_logger, _tw_logger = (None, None, None, None, None)
+_scrape_logger, _fb_logger, _ig_logger, _tg_logger, _tw_logger = (
+    None, None, None, None, None)
 _MIN_IDENTIFIABILITY_THREESHOLD = 5
 _CREDENTIALS_PATH = 'credentials.ini'
 _base_dir = None
@@ -53,6 +54,7 @@ def _keyboard_interrupt_handler(rcv_signal, frame):  # noeq
 signal.signal(signal.SIGINT, _keyboard_interrupt_handler)
 
 ############### Base Functions Definition ###############
+
 
 def _define_loggers():
     """
@@ -144,7 +146,8 @@ def _select_telegram_group():
     return target_group
 
 
-def _select_and_save_group_members(target_group, save_dir, aquired_profiles=None):
+def _select_and_save_group_members(
+        target_group, save_dir, aquired_profiles=None):
     """
     Data una directory converte i partecipanti in un oggetto 'person'
 
@@ -257,16 +260,23 @@ def _select_work_dir():
     root = tk.Tk()
     root.withdraw()
 
-    print(colored('[SYSTEM]', 'green') + ' Press a key to select the work directory', end='')
+    print(
+        colored(
+            '[SYSTEM]',
+            'green') +
+        ' Press a key to select the work directory',
+        end='')
     input()
 
     selected_dir = filedialog.askdirectory()
 
-    print(colored('[SYSTEM]', 'green') + ' Selected directory: {}'.format(selected_dir))
+    print(colored('[SYSTEM]', 'green') +
+          ' Selected directory: {}'.format(selected_dir))
 
     return selected_dir
 
 ############### Scraping Functions Definition ###############
+
 
 def _scrape_telegram(people, save_people_dir, image_dir):
     """
@@ -292,11 +302,13 @@ def _scrape_telegram(people, save_people_dir, image_dir):
                 tg_profiles_list.append(tg_profile)
 
     # Se non ci sono profili ritorna evitando di creare un instanta Telethon
-    if not len(tg_profiles_list) > 0: return
+    if not len(tg_profiles_list) > 0:
+        return
 
     # Scarica le immagini
     with tg_functions.connect_telegram_client(password_manager.tg_phone, password_manager.tg_api_id, password_manager.tg_api_hash) as tg_client:
-        for p in tqdm(profiles, colored('[TELEGRAM]', 'cyan') + ' Download and image processing of Telegram profiles images'):
+        for p in tqdm(profiles, colored(
+                '[TELEGRAM]', 'cyan') + ' Download and image processing of Telegram profiles images'):
             # Se richiesto dall'utente esce dal ciclo (per chiudere il client Telegram aperto con with)
             # e poi termina il programma
             if _terminate_program:
@@ -310,21 +322,30 @@ def _scrape_telegram(people, save_people_dir, image_dir):
             if tg_profile.is_elaborated:
                 continue
 
-            _scrape_logger.debug('Elaborating Telegram profile with username {} (ID {})'.format(tg_profile.username, tg_profile.user_id))
+            _scrape_logger.debug(
+                'Elaborating Telegram profile with username {} (ID {})'.format(
+                    tg_profile.username, tg_profile.user_id))
 
             # Forma i percorsi
-            images_path = os.path.join(image_dir, 'person_{}_images'.format(str(p.id)))
+            images_path = os.path.join(
+                image_dir, 'person_{}_images'.format(str(p.id)))
             save_path = os.path.join(save_people_dir, '{}.person'.format(p.id))
 
             # Crea la cartella che conterrà le immagini
-            if not os.path.exists(images_path): os.makedirs(images_path)
-            
+            if not os.path.exists(images_path):
+                os.makedirs(images_path)
+
             # Scarica ed elabora le immagini
             tg_profile.download_profile_photos(images_path, tg_client)
             tg_profile.elaborate_images(images_path, tg_client)
 
             # Salva i dati
-            pickle.dump(p, open(save_path, 'wb'), protocol=pickle.HIGHEST_PROTOCOL)
+            pickle.dump(
+                p,
+                open(
+                    save_path,
+                    'wb'),
+                protocol=pickle.HIGHEST_PROTOCOL)
             database.set_person_checked(_db_path, p.id, 'Telegram')
 
     if _terminate_program:
@@ -344,8 +365,14 @@ def _scrape_facebook(people, save_dir_people):
     _scrape_logger.info('Creation of Facebook scraper')
     fb_scraper = fb_functions.fb_scraper(_fb_logger)
     fb_scraper.init_scraper()
-    if not fb_scraper.fb_login(password_manager.fb_email, password_manager.fb_password):
-        print(colored('[FACEBOOK]', 'blue', 'on_white') + ' Unable to login to Facebook')
+    if not fb_scraper.fb_login(
+            password_manager.fb_email, password_manager.fb_password):
+        print(
+            colored(
+                '[FACEBOOK]',
+                'blue',
+                'on_white') +
+            ' Unable to login to Facebook')
         _scrape_logger.error('Unable to login to Facebook')
         fb_scraper.terminate()
         return
@@ -364,7 +391,12 @@ def _scrape_facebook(people, save_dir_people):
 
         # Verifica che il profilo Facebook non sia stato bloccato
         if fb_scraper.is_blocked:
-            tqdm.write(colored('[Facebook]', 'blue', 'on_white') + ' Facebook profile has been blocked, now proceeding with Instagram...')
+            tqdm.write(
+                colored(
+                    '[Facebook]',
+                    'blue',
+                    'on_white') +
+                ' Facebook profile has been blocked, now proceeding with Instagram...')
             break
 
         _scrape_logger.debug('Search user FB profiles with profile ID {}, name {} {}'
@@ -381,7 +413,8 @@ def _scrape_facebook(people, save_dir_people):
 
             # Salva i risultati
             if not fb_scraper.is_blocked:
-                pickle.dump(p, open(save_path, 'wb'), protocol=pickle.HIGHEST_PROTOCOL)
+                pickle.dump(p, open(save_path, 'wb'),
+                            protocol=pickle.HIGHEST_PROTOCOL)
                 database.set_person_checked(_db_path, p.id, 'Facebook')
 
     # Chiude il browser Facebook
@@ -402,8 +435,10 @@ def _scrape_instagram(people, save_people_dir):
     _scrape_logger.info('Creation of Instagram scraper')
     ig_scraper = ig_functions.ig_scraper(_ig_logger)
     if not ig_scraper.login_anonymously():
-        print(colored('[INSTAGRAM]', 'magenta') + ' Unable to instantiate Instagram client')
-        _scrape_logger.error('Unable to instantiate anonymous Instagram client')
+        print(colored('[INSTAGRAM]', 'magenta') +
+              ' Unable to instantiate Instagram client')
+        _scrape_logger.error(
+            'Unable to instantiate anonymous Instagram client')
         ig_scraper.terminate()
 
     # Inizia lo scraping
@@ -420,14 +455,19 @@ def _scrape_instagram(people, save_people_dir):
 
         # Verifica che il profilo Instagram non sia stato bloccato
         if ig_scraper.is_blocked:
-            tqdm.write(colored('[Instagram]', 'magenta') + ' Istagram profile has been blocked, now proceeding with Twitter...')
+            tqdm.write(
+                colored(
+                    '[Instagram]',
+                    'magenta') +
+                ' Istagram profile has been blocked, now proceeding with Twitter...')
             break
 
         _scrape_logger.debug('Search user IG profiles with profile ID {}, name {} {}'
                              .format(p.id, p.first_name, p.last_name))
 
         # Verifica se già esiste un profilo Instagram
-        if not len(p.get_profiles('Instagram')) > 0 and ig_scraper.is_initialized:
+        if not len(p.get_profiles('Instagram')
+                   ) > 0 and ig_scraper.is_initialized:
             # Ricerca del profilo Instagram
             result = p.find_instagram_profile(ig_scraper)
 
@@ -438,7 +478,8 @@ def _scrape_instagram(people, save_people_dir):
 
             # Salva i risultati
             if not ig_scraper.is_blocked:
-                pickle.dump(p, open(save_path, 'wb'), protocol=pickle.HIGHEST_PROTOCOL)
+                pickle.dump(p, open(save_path, 'wb'),
+                            protocol=pickle.HIGHEST_PROTOCOL)
                 database.set_person_checked(_db_path, p.id, 'Instagram')
 
     # Chiude il client Instagram
@@ -469,7 +510,8 @@ def _scrape_twitter(people, save_people_dir):
                              .format(p.id, p.first_name, p.last_name))
 
         # Verifica se già esiste un profilo Facebook
-        if not len(p.get_profiles('Twitter')) > 0 and tw_scraper.is_initialized:
+        if not len(p.get_profiles('Twitter')
+                   ) > 0 and tw_scraper.is_initialized:
             # Ricerca del profilo Twitter
             result = p.find_twitter_profile(tw_scraper, 'italia')
 
@@ -480,10 +522,16 @@ def _scrape_twitter(people, save_people_dir):
 
             # Salva i risultati
             save_path = os.path.join(save_people_dir, '{}.person'.format(p.id))
-            pickle.dump(p, open(save_path, 'wb'), protocol=pickle.HIGHEST_PROTOCOL)
+            pickle.dump(
+                p,
+                open(
+                    save_path,
+                    'wb'),
+                protocol=pickle.HIGHEST_PROTOCOL)
             database.set_person_checked(_db_path, p.id, 'Twitter')
 
 ############### Main Functions Definition ###############
+
 
 def scrape_group():
     global _base_dir, _db_path
@@ -500,13 +548,20 @@ def scrape_group():
     _db_path = os.path.join(_base_dir, 'session.sqlite')
 
     # Crea la cartella
-    if not os.path.exists(people_save_dir): os.makedirs(people_save_dir)
-    if not os.path.exists(tg_save_images_dir): os.makedirs(tg_save_images_dir)
+    if not os.path.exists(people_save_dir):
+        os.makedirs(people_save_dir)
+    if not os.path.exists(tg_save_images_dir):
+        os.makedirs(tg_save_images_dir)
 
     # Crea il database
-    if not os.path.exists(_db_path): database.create_database(_db_path)
-    else: 
-        print(colored('[ERROR]', 'red') + ' You have selected the working dir of an active scraping project, please select another directory')
+    if not os.path.exists(_db_path):
+        database.create_database(_db_path)
+    else:
+        print(
+            colored(
+                '[ERROR]',
+                'red') +
+            ' You have selected the working dir of an active scraping project, please select another directory')
         return
 
     # Selezione del gruppo da analizzare
@@ -514,12 +569,14 @@ def scrape_group():
     target_group = _select_telegram_group()
 
     # Ottiene e salva i membri del gruppo Telegram come entità 'person'
-    people_profiles = _select_and_save_group_members(target_group, people_save_dir)
+    people_profiles = _select_and_save_group_members(
+        target_group, people_save_dir)
     database.add_new_people(_db_path, people_profiles)
 
     # Ordina le persone in base al loro indice di identificabilità
     # (decrescente) e solo se hanno una possibilità di essere identificabili
-    people_profiles = [p for p in people_profiles if p.get_identifiability() > _MIN_IDENTIFIABILITY_THREESHOLD]
+    people_profiles = [p for p in people_profiles if p.get_identifiability(
+    ) > _MIN_IDENTIFIABILITY_THREESHOLD]
     people_profiles.sort(key=lambda p: p.get_identifiability(), reverse=True)
 
     # Vengono scaricate le foto profilo degli utenti Telegram
@@ -533,8 +590,12 @@ def scrape_group():
 
     # Vengono elaborati i profili Twitter
     _scrape_twitter(people_profiles, people_save_dir)
-    
-    print(colored('[SYSTEM]', 'green') + ' Social profile search completed, press a button to terminate the application')
+
+    print(
+        colored(
+            '[SYSTEM]',
+            'green') +
+        ' Social profile search completed, press a button to terminate the application')
     _scrape_logger.info('Social profile search finished')
 
 
@@ -557,12 +618,15 @@ def resume_scrape_session():
     _db_path = os.path.join(_base_dir, 'session.sqlite')
 
     # Crea la cartella
-    if not os.path.exists(people_save_dir): os.makedirs(people_save_dir)
-    if not os.path.exists(tg_save_images_dir): os.makedirs(tg_save_images_dir)
+    if not os.path.exists(people_save_dir):
+        os.makedirs(people_save_dir)
+    if not os.path.exists(tg_save_images_dir):
+        os.makedirs(tg_save_images_dir)
 
     # Verifica l'esistenza del database
-    if not os.path.exists(_db_path): 
-        print(colored('[ERROR]', 'red') + 'Can\'t recover previous session, no database found!')
+    if not os.path.exists(_db_path):
+        print(colored('[ERROR]', 'red') +
+              'Can\'t recover previous session, no database found!')
         return
 
     # Carica i profili creati in precedenza
@@ -570,42 +634,58 @@ def resume_scrape_session():
     people_profiles = _load_people_profiles(people_save_dir)
 
     # Verifica se ci sono nuovi membri nel gruppo
-    print(colored('[SYSTEM]','green') + ' Do you want to check if there are new members in the group? (y/n) ', end='')
+    print(
+        colored(
+            '[SYSTEM]',
+            'green') +
+        ' Do you want to check if there are new members in the group? (y/n) ',
+        end='')
     if input().lower() == 'y':
         # Selezione del gruppo da analizzare
         target_group = _select_telegram_group()
 
-        _scrape_logger.info('Search for new Telegram profiles in the group (differential)')
+        _scrape_logger.info(
+            'Search for new Telegram profiles in the group (differential)')
 
         # Ottiene e salva i membri del gruppo Telegram come entità 'person'
-        people_profiles = _select_and_save_group_members(target_group, people_save_dir, people_profiles)
+        people_profiles = _select_and_save_group_members(
+            target_group, people_save_dir, people_profiles)
 
     # Ordina le persone in base al loro indice di identificabilità
     # (decrescente) e solo se hanno una possibilità di essere identificabili
-    people_profiles = [p for p in people_profiles if p.get_identifiability() > _MIN_IDENTIFIABILITY_THREESHOLD]
+    people_profiles = [p for p in people_profiles if p.get_identifiability(
+    ) > _MIN_IDENTIFIABILITY_THREESHOLD]
     people_profiles.sort(key=lambda p: p.get_identifiability(), reverse=True)
 
     # Vengono scaricate le foto profilo degli utenti Telegram
-    ids_list = database.get_uncheked_people_ids_for_platform(_db_path, 'Telegram')
+    ids_list = database.get_uncheked_people_ids_for_platform(
+        _db_path, 'Telegram')
     tg_people_list = [p for p in people_profiles if p.id in ids_list]
     _scrape_telegram(tg_people_list, people_save_dir, tg_save_images_dir)
 
     # Vengono scaricate le foto profilo degli utenti Facebook
-    ids_list = database.get_uncheked_people_ids_for_platform(_db_path, 'Facebook')
+    ids_list = database.get_uncheked_people_ids_for_platform(
+        _db_path, 'Facebook')
     fb_people_list = [p for p in people_profiles if p.id in ids_list]
     _scrape_facebook(fb_people_list, people_save_dir)
 
     # Vengono scaricate le foto profilo degli utenti Instagram
-    ids_list = database.get_uncheked_people_ids_for_platform(_db_path, 'Instagram')
+    ids_list = database.get_uncheked_people_ids_for_platform(
+        _db_path, 'Instagram')
     ig_people_list = [p for p in people_profiles if p.id in ids_list]
     _scrape_instagram(ig_people_list, people_save_dir)
 
     # Vengono elaborati i profili Twitter
-    ids_list = database.get_uncheked_people_ids_for_platform(_db_path, 'Twitter')
+    ids_list = database.get_uncheked_people_ids_for_platform(
+        _db_path, 'Twitter')
     tw_people_list = [p for p in people_profiles if p.id in ids_list]
     _scrape_twitter(tw_people_list, people_save_dir)
 
-    print(colored('[SYSTEM]', 'green') + ' Social profile search completed, press a button to terminate the application')
+    print(
+        colored(
+            '[SYSTEM]',
+            'green') +
+        ' Social profile search completed, press a button to terminate the application')
     _scrape_logger.info('Social profile search finished')
 
 

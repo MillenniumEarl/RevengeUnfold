@@ -10,7 +10,8 @@ ig_password = ''
 fb_email = ''
 fb_password = ''
 
-def load_credential(path:str):
+
+def load_credential(path: str):
     """Load the credentials from a INI file
 
     Parameters

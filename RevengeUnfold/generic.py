@@ -22,7 +22,8 @@ def only_ASCII(s):
     printable = set(string.printable)
 
     # Se la stringa è nulla la ritorna
-    if s is None: return None
+    if s is None:
+        return None
 
     # Rimuove i caratteri
     s = ''.join(filter(lambda x: x in printable, s))

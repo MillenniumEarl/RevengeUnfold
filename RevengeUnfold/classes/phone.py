@@ -2,6 +2,7 @@
 import phonenumbers
 from phonenumbers import geocoder, carrier, timezone
 
+
 class phone:
     """
     Class representing a phone number. Through the constructor it can obtain the data of a telephone number.
@@ -18,19 +19,20 @@ class phone:
         Timezone of the country where the phone is used
     """
 
-    def __init__(self, phone_number:str):
+    def __init__(self, phone_number: str):
         """
         Parameters
         ----------
         phone_number: str
             Telephone number for which to obtain information
         """
-        self.number:str = None
-        self.carrier:str = None
-        self.geolocation:str = None
-        self.timezone:str = None
+        self.number: str = None
+        self.carrier: str = None
+        self.geolocation: str = None
+        self.timezone: str = None
 
-        # If not present, add the + for the international prefix (avoid exceptions)
+        # If not present, add the + for the international prefix (avoid
+        # exceptions)
         if not '+' in phone_number:
             # Remove any + not at first character
             phone_number = '+{}'.format(phone_number.replace('+', ''))

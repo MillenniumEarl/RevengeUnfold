@@ -83,6 +83,7 @@ SESSION_FILE_NAME = 'session.fb_scraper'
 MESSAGE_NEED_LOGIN = 'In order to use this function the user need to be logged to Facebook'
 MESSAGE_ACCOUNT_BLOCKED = 'The account has been blocked, you may have to wait for a day to use your account. The client will now be closed'
 
+
 class fb_scraper:
     """
     Class that represents a Selenium instance of WebDriver and allows the scraping of a Facebook profile
@@ -116,7 +117,7 @@ class fb_scraper:
         Download photos of a Facebook profile
     """
 
-    def __init__(self, logger:Type['logging.Logger']=None):
+    def __init__(self, logger: Type['logging.Logger'] = None):
         """
         Parameters
         ----------
@@ -124,25 +125,27 @@ class fb_scraper:
            Logger used to save events
            Default None
         """
-        self._driver:webdriver = None
-        self._requests:int = 0
-        self._instantiation_time:datetime.datetime = datetime.datetime.now()
-        self._timeout:float = 5
-        self._req_per_second:float = 0.056  # 200 per hour
-        self._logger:Type['logging.Logger'] = logger
-        self.is_blocked:bool = False
-        self.is_logged:bool = False
-        self.is_initialized:bool = False
-        self.errors:List[scraper_error.scraper_error] = []
+        self._driver: webdriver = None
+        self._requests: int = 0
+        self._instantiation_time: datetime.datetime = datetime.datetime.now()
+        self._timeout: float = 5
+        self._req_per_second: float = 0.056  # 200 per hour
+        self._logger: Type['logging.Logger'] = logger
+        self.is_blocked: bool = False
+        self.is_logged: bool = False
+        self.is_initialized: bool = False
+        self.errors: List[scraper_error.scraper_error] = []
 
-    def _is_blocked(self)->bool:
+    def _is_blocked(self) -> bool:
         """Check if the account has been blocked (too many requests)"""
 
         # Create an object to wait
         wait = WebDriverWait(self._driver, self._timeout)
 
         try:
-            wait.until(EC.element_to_be_clickable((By.XPATH, BANNED_LINK_ALERT)))
+            wait.until(
+                EC.element_to_be_clickable(
+                    (By.XPATH, BANNED_LINK_ALERT)))
             self.is_blocked = True
             return True
         except TimeoutException as ex:
@@ -152,10 +155,10 @@ class fb_scraper:
             self._manage_error(WEBDRIVER_GENERIC_ERROR, ex)
             return False
 
-    def _manage_error(self, error_code:int, ex:Exception):
+    def _manage_error(self, error_code: int, ex: Exception):
         """It manages errors and their writing on logger
 
-        Save errors on self.errors and, if a logger has been specified, 
+        Save errors on self.errors and, if a logger has been specified,
         write an error message
 
         Parameters
@@ -177,7 +180,8 @@ class fb_scraper:
 
         # Check if the user has been blocked and end the scraping
         if error_code == ACCOUNT_BLOCKED:
-            if self._logger is not None: self._logger.critical(message)
+            if self._logger is not None:
+                self._logger.critical(message)
             self.terminate()
             return
 
@@ -198,7 +202,8 @@ class fb_scraper:
         # Increase the number of requests made
         self._requests += 1
 
-        # Calculates the average of requests made since the object was instanced
+        # Calculates the average of requests made since the object was
+        # instanced
         delta = datetime.datetime.now() - self._instantiation_time
         avg_req_per_sec = self._requests / delta.total_seconds()
         if self._logger is not None:
@@ -214,8 +219,10 @@ class fb_scraper:
 
         # Check if the limit has been exceeded and if necessary wait
         if avg_req_per_sec > self._req_per_second:
-            # Reduces the number of requests per second to a value lower than the maximum allowed
-            wait_delta_sec = self._requests / (self._req_per_second * REQUEST_LIMIT_MODIFIER)
+            # Reduces the number of requests per second to a value lower than
+            # the maximum allowed
+            wait_delta_sec = self._requests / \
+                (self._req_per_second * REQUEST_LIMIT_MODIFIER)
 
             # Gets the number of seconds to wait
             resume_time = datetime.datetime.now() + datetime.timedelta(seconds=wait_delta_sec)
@@ -252,7 +259,8 @@ class fb_scraper:
 
         return True
 
-    def _wait_for_correct_current_url(driver:webdriver, desired_url:str, timeout:int=10)->bool:
+    def _wait_for_correct_current_url(
+            self, driver: webdriver, desired_url: str, timeout: int = 10) -> bool:
         """Waits for a Web Driver to load a specific URL
 
         Parameters
@@ -265,7 +273,7 @@ class fb_scraper:
             Maximum number of seconds to wait for verification
             Default 10
 
-        Return
+                Return
         ------
         bool
             True if the URL of the WebDriver is the same of desired_url, False otherwise
@@ -278,7 +286,7 @@ class fb_scraper:
         except TimeoutException:
             return False
 
-    def _image_download(self, url:str, save_path:str)->bool:
+    def _image_download(self, url: str, save_path: str) -> bool:
         """Download an image from the profile
 
         Parameters
@@ -288,24 +296,25 @@ class fb_scraper:
         save_path: str
             Image saving path
 
-        Return
+                Return
         ------
-        bool
-            True if the image was downloaded, False otherwise
+                bool
+                        True if the image was downloaded, False otherwise
         """
         try:
-            if url.lower().startswith('http'): # Download only HTTP URLs
+            if url.lower().startswith('http'):  # Download only HTTP URLs
                 urllib.request.urlretrieve(url, os.path.abspath(save_path))
                 return True
             else:
-                ex = exceptions.UnexpectedURLValue('URL {} is not valid'.format(url))
+                ex = exceptions.UnexpectedURLValue(
+                    'URL {} is not valid'.format(url))
                 self._manage_error(UNEXPECTED_URL_VALUE, ex)
                 return False
         except Exception as ex:
             self._manage_error(DOWNLOAD_IMAGE_ERROR, ex)
             return False
 
-    def _get_photos_URL(self, username:str)->list:
+    def _get_photos_URL(self, username: str) -> list:
         """Gets the URLs of all the images in the user's profile
 
         Parameters
@@ -313,10 +322,10 @@ class fb_scraper:
         username: str
             User name of the profile from which to download the images
 
-        Return
+                Return
         ------
         list
-            List of URLs
+                        List of URLs
         """
 
         # Local variables
@@ -329,7 +338,8 @@ class fb_scraper:
         self._request_manager()
 
         # Scrolls down the page
-        self._driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        self._driver.execute_script(
+            "window.scrollTo(0, document.body.scrollHeight);")
         # Waits for the page to load images
         time.sleep(SLEEP_TIME_MEDIUM)
         self._request_manager()
@@ -344,7 +354,8 @@ class fb_scraper:
         self._request_manager()
 
         # Scrolls down the page
-        self._driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        self._driver.execute_script(
+            "window.scrollTo(0, document.body.scrollHeight);")
         # Waits for the page to load images
         time.sleep(SLEEP_TIME_MEDIUM)
         self._request_manager()
@@ -363,7 +374,7 @@ class fb_scraper:
 
         return url_images
 
-    def _find_user_page(self, username:str)->bool:
+    def _find_user_page(self, username: str) -> bool:
         """Search a user's home page to verify that it exists
 
         Parameters
@@ -371,14 +382,15 @@ class fb_scraper:
         username: str
             Username of the profile to check for
 
-        Return
+                Return
         ------
         bool
-            True if the profile exists, False otherwise
+                        True if the profile exists, False otherwise
         """
 
         # Check if the scraper can continue execution
-        if not self._check_scraper_usable(): return False
+        if not self._check_scraper_usable():
+            return False
 
         # Search for the profile by URL
         self._driver.get(PROFILE_URL.format(username))
@@ -446,7 +458,7 @@ class fb_scraper:
             self._manage_error(WEBDRIVER_INIT_FAILED, ex)
             return False
 
-    def fb_login(self, fb_mail:str, fb_password:str)->bool:
+    def fb_login(self, fb_mail: str, fb_password: str) -> bool:
         """Log in to Facebook. The Web Driver must be initialized.
 
         Parameters
@@ -456,15 +468,16 @@ class fb_scraper:
         fb_password: str
             Facebook account password
 
-        Return
+                Return
         ------
         bool
-            True if successfully logged in, False otherwise (or if the Web Driver has not been initialized)
+                        True if successfully logged in, False otherwise (or if the Web Driver has not been initialized)
         """
 
         # If the driver is not initialized it exits
         if not self.is_initialized:
-            ex = exceptions.WebDriverNotInitialized('The WebDriver is not initialized, please call the init_scraper() function')
+            ex = exceptions.WebDriverNotInitialized(
+                'The WebDriver is not initialized, please call the init_scraper() function')
             self._manage_error(WEBDRIVER_NOT_INITIALIZED, ex)
             return False
 
@@ -506,7 +519,8 @@ class fb_scraper:
             self._request_manager()
             return True
         except TimeoutException as ex:
-            if _wait_for_correct_current_url(self._driver, ERROR_LOGIN_URL) is True:
+            if self.wait_for_correct_current_url(
+                    self._driver, ERROR_LOGIN_URL) is True:
                 self._manage_error(LOGIN_INCORRECT_CREDENTIALS, ex)
             else:
                 self._manage_error(LOGIN_GENERIC_ERROR, ex)
@@ -527,7 +541,8 @@ class fb_scraper:
         if self._logger is not None:
             self._logger.info('fb_scraper correctly closed')
 
-    def find_user_by_username(self, username:str, skip_verification:bool=False)->Type['classes.profiles.facebook_profile']:
+    def find_user_by_username(
+            self, username: str, skip_verification: bool = False) -> Type['classes.profiles.facebook_profile']:
         """Search for a Facebook profile from your username
 
         You must be logged in
@@ -540,14 +555,15 @@ class fb_scraper:
             Indicates whether to skip checking the existence of the profile
             Default False
 
-        Return
+                Return
         ------
         facebook_profile
             Facebook profile (profiles.facebook profile) or None if the profile does not exist (or you are not logged in)
         """
 
         # Check if the scraper can continue execution
-        if not self._check_scraper_usable(): return None
+        if not self._check_scraper_usable():
+            return None
 
         # Search for the user
         if not skip_verification:
@@ -591,7 +607,8 @@ class fb_scraper:
             location_div = wait.until(
                 EC.presence_of_element_located((By.XPATH, LOCATION_INFO_XP)))
             loc = location.location().from_name(location_div.text)
-            if loc.is_valid: fb_user.location = loc
+            if loc.is_valid:
+                fb_user.location = loc
         except TimeoutException:
             pass
 
@@ -610,7 +627,8 @@ class fb_scraper:
         # Return the created profile
         return fb_user
 
-    def find_user_by_keywords(self, *keywords, max_users:int=5)->List[Type['classes.profiles.facebook_profile']]:
+    def find_user_by_keywords(
+            self, *keywords, max_users: int = 5) -> List[Type['classes.profiles.facebook_profile']]:
         """Search for Facebook profiles compatible with the specified keywords
 
         You must be logged in
@@ -623,7 +641,7 @@ class fb_scraper:
             Maximum number of users to search
             Default 5
 
-        Return
+                Return
         ------
         List
             List of Facebook profiles (profiles.facebook_profile)
@@ -635,11 +653,12 @@ class fb_scraper:
         links = []
 
         # Check if the scraper can continue execution
-        if not self._check_scraper_usable(): return []
+        if not self._check_scraper_usable():
+            return []
 
         # Compose the URL to be used for the search
         keys = [str(s).strip() for s in keywords if s is not None]
-        search_string = '%20'.join(keys) # %20 is space
+        search_string = '%20'.join(keys)  # %20 is space
         if search_string == '':
             return []
         self._driver.get(SEARCH_URL.format(search_string))
@@ -679,11 +698,14 @@ class fb_scraper:
         for username in usernames:
             # Exit the cycle if the profile is locked
             # The check is carried out in find_user_by_username
-            if self.is_blocked: break
+            if self.is_blocked:
+                break
 
-            # We skip the verification because we already know that the profiles exist
+            # We skip the verification because we already know that the
+            # profiles exist
             p = self.find_user_by_username(username, skip_verification=True)
-            if p is not None: fb_profiles.append(p)
+            if p is not None:
+                fb_profiles.append(p)
             time.sleep(SLEEP_TIME_LONG)
 
         if self._logger is not None:
@@ -692,7 +714,8 @@ class fb_scraper:
                     len(fb_profiles), generic.only_ASCII(','.join(keys))))
         return fb_profiles
 
-    def download_profile_photo(self, fb_profile:Type['classes.profiles.facebook_profile'], save_path:str)->bool:
+    def download_profile_photo(
+            self, fb_profile: Type['classes.profiles.facebook_profile'], save_path: str) -> bool:
         """Download the profile picture of the specified user
 
         You must be logged in
@@ -704,14 +727,15 @@ class fb_scraper:
         save_path: str
             Image saving path
 
-        Return
+                Return
         ------
         bool
             True if the image was downloaded, False otherwise
         """
 
         # Check if the scraper can continue execution
-        if not self._check_scraper_usable(): return False
+        if not self._check_scraper_usable():
+            return False
 
         # Browse the user's profile
         self._driver.get(PROFILE_URL.format(fb_profile.username))
@@ -725,7 +749,9 @@ class fb_scraper:
                 EC.element_to_be_clickable(
                     (By.CLASS_NAME, PROFILE_PHOTO_CLASSNAME)))
         except TimeoutException:
-            self._logger.debug('User {} does not have a profile photo'.format(fb_profile.username))
+            self._logger.debug(
+                'User {} does not have a profile photo'.format(
+                    fb_profile.username))
             return False
         except Exception as ex:
             self._manage_error(WEBDRIVER_GENERIC_ERROR, ex)
@@ -737,7 +763,8 @@ class fb_scraper:
         # Download the image
         return self._image_download(url, save_path)
 
-    def download_profile_images(self, fb_profile:Type['classes.profiles.facebook_profile'], save_dir:str, max_photo:int=30)->bool:
+    def download_profile_images(
+            self, fb_profile: Type['classes.profiles.facebook_profile'], save_dir: str, max_photo: int = 30) -> bool:
         """Download the Facebook profile pictures
 
         You must be logged in
@@ -752,7 +779,7 @@ class fb_scraper:
             Maximum number of photos to download
             Default 30
 
-        Return
+                Return
         ------
         bool
             True if the images have been downloaded, False otherwise
@@ -762,7 +789,8 @@ class fb_scraper:
         url_images = []
 
         # Check if the scraper can continue execution
-        if not self._check_scraper_usable(): return False
+        if not self._check_scraper_usable():
+            return False
 
         # Create the folder if needed
         if not os.path.exists(save_dir):
