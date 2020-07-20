@@ -10,13 +10,14 @@ ig_password = ''
 fb_email = ''
 fb_password = ''
 
-def load_credential(path):
-    '''
-    Load the credentials from a INI file
+def load_credential(path:str):
+    """Load the credentials from a INI file
 
-    Params:
-    @path: Path to the INI file
-    '''
+    Parameters
+    ----------
+    path: str
+        Path to the INI file
+    """
 
     # Instantiate parser
     config = ConfigParser()

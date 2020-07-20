@@ -11,16 +11,16 @@ import password_manager
 
 
 def take(n, iterable):
-    '''
+    """
     Return first n items of the iterable as a list
-    '''
+    """
 
     return list(islice(iterable, n))
 
 
 def select_telegram_group():
-    '''
-    '''
+    """
+    """
 
     # Collega il client Telegram
     with tg_functions.connect_telegram_client(password_manager.tg_phone, password_manager.tg_api_id, password_manager.tg_api_hash) as tg_client:
@@ -61,14 +61,14 @@ def select_telegram_group():
 
 
 def get_most_active_users(tg_group, n_active_users=25, message_limit=3000):
-    '''
+    """
     Dato un gruppo Telegram ottiene gli utenti che scrivono più messaggi
 
     Params:
     @tg_group: Gruppo da analizzare
     @n_active_users [25]: Numero massimo di utenti più attivi da individuare
     @message_limit[3000]: Numero massimo di messaggi da controllare per i dentificare i profili attivi
-    '''
+    """
 
     # Variabili locali
     active_users = {}

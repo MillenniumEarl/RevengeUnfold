@@ -50,9 +50,9 @@ class tw_scraper:
         self.errors = []
 
     def _manage_error(self, error_code, ex):
-        '''
+        """
         Gestisce gli errori e la loro scrittura su logger
-        '''
+        """
 
         self.errors.append(
             scraper_error.scraper_error(
@@ -69,7 +69,7 @@ class tw_scraper:
                 self._logger.warning(message)
 
     def _image_download(self, url, save_path):
-        '''
+        """
         Scarica un immagine.
 
         Params:
@@ -78,7 +78,7 @@ class tw_scraper:
 
         Return:
         True se l'immagine è stata scaricata, False altrimenti
-        '''
+        """
         try:
             if url.lower().startswith('http'): # Download only HTTP URLs
                 urllib.request.urlretrieve(url, os.path.abspath(save_path))
@@ -92,14 +92,14 @@ class tw_scraper:
             return False
 
     def init(self, use_proxy=True, proxy_s=None):
-        '''
+        """
         Inizializza un ChromeDriver associato all'oggetto.
         Il WebDriver viene automaticamente scaricato.
 
         Params:
         @use_proxy [True]: Usa un proxy italiano (automatico)
         @proxy_s [None]: Proxy custom nel formato IP:Porta
-        '''
+        """
 
         # Se é giá istanziato termina l'oggetto e lo ricrea
         if self.is_initialized:
@@ -116,7 +116,7 @@ class tw_scraper:
                 if self._logger is not None:
                     self._logger.info('No proxy available')
 
-        # Imposta le opzioni per il WebDriver -> Non salvare la cache, Twitter dà problemi
+        # Imposta le opzioni per il WebDriver->Non salvare la cache, Twitter dà problemi
         options = Options()
         options.add_argument('--disable-notifications')
         options.add_argument('--disable-infobars')
@@ -144,9 +144,9 @@ class tw_scraper:
             return False
 
     def terminate(self):
-        '''
+        """
         Chiude il WebDriver
-        '''
+        """
 
         if not self.is_initialized:
             return
@@ -157,7 +157,7 @@ class tw_scraper:
             self._logger.info('tw_scraper correctly closed')
 
     def find_user_by_username(self, username):
-        '''
+        """
         Cerca un profilo Twitter a partire dal nome utente.
 
         Params:
@@ -165,7 +165,7 @@ class tw_scraper:
 
         Return:
         Profilo Twitter (profiles.twitter_profile) o None se il profilo non esiste (o il WebDriver non è inizializzato)
-        '''
+        """
 
         try:
             # Get the data from Twitter
@@ -194,7 +194,7 @@ class tw_scraper:
         return tw_user
 
     def find_user_by_keywords(self, *keywords, max_users=10):
-        '''
+        """
         Cerca dei profili Twitter compatibili con le parole chiave specificate.
 
         Params:
@@ -203,7 +203,7 @@ class tw_scraper:
 
         Return:
         Lista di profili Twitter (profiles.twitter_profile)
-        '''
+        """
 
         # Variabili locali
         usernames = []
@@ -243,7 +243,7 @@ class tw_scraper:
         return tw_profiles
 
     def download_profile_photo(self, tw_profile, save_path):
-        '''
+        """
         Scarica l'immagine profilo dell'utente specificato.
 
         Params:
@@ -252,7 +252,7 @@ class tw_scraper:
 
         Return:
         True se l'immagine è stata scaricata, False altrimenti
-        '''
+        """
 
         if not self.is_initialized:
             ex = exceptions.WebDriverNotInitialized('The WebDriver is not initialized, please call the init() function')
@@ -282,14 +282,14 @@ class tw_scraper:
         return self._image_download(url, save_path)
 
     def download_profile_images(self, tw_profile, save_dir, max_photo=30):
-        '''
+        """
         Scarica le immagini del profilo utente.
 
         Params:
         @tw_profile: Profilo Twitter (profiles.twitter_profile) di cui scaricare le immagini
         @save_dir: Directory di salvataggio delle immagini
         @max_photo [30]: Massimo numero di foto da scaricare
-        '''
+        """
 
         # Variabili locali
         url_images = []

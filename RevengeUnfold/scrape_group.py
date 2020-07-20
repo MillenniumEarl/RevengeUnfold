@@ -55,9 +55,9 @@ signal.signal(signal.SIGINT, _keyboard_interrupt_handler)
 ############### Base Functions Definition ###############
 
 def _define_loggers():
-    '''
+    """
     Vengono creati i logger per l'applicazione e per gli scraper
-    '''
+    """
 
     global _scrape_logger, _fb_logger, _ig_logger, _tg_logger, _tw_logger
 
@@ -96,12 +96,12 @@ def _define_loggers():
 
 
 def _select_telegram_group():
-    '''
+    """
     Elenca tutti i gruppi a cui l'utente sta partecipando e gli permette di selezionarne uno
 
     Return:
     Gruppo selezionato (Telethon entity) o None se si vuole riprendere una sessione precedente
-    '''
+    """
 
     # Collega il client Telegram
     with tg_functions.connect_telegram_client(password_manager.tg_phone, password_manager.tg_api_id, password_manager.tg_api_hash) as tg_client:
@@ -145,7 +145,7 @@ def _select_telegram_group():
 
 
 def _select_and_save_group_members(target_group, save_dir, aquired_profiles=None):
-    '''
+    """
     Data una directory converte i partecipanti in un oggetto 'person'
 
     Params:
@@ -155,7 +155,7 @@ def _select_and_save_group_members(target_group, save_dir, aquired_profiles=None
 
     Return:
     Lista di profili (person)
-    '''
+    """
 
     # Variabili locali
     profiles_list = []
@@ -216,7 +216,7 @@ def _select_and_save_group_members(target_group, save_dir, aquired_profiles=None
 
 
 def _load_people_profiles(load_dir):
-    '''
+    """
     Carica i profili utente salvati in precedenza
 
     Params:
@@ -224,7 +224,7 @@ def _load_people_profiles(load_dir):
 
     Return:
     Lista di profili (classes.person)
-    '''
+    """
 
     # Variabili locali
     profiles_list = []
@@ -246,12 +246,12 @@ def _load_people_profiles(load_dir):
 
 
 def _select_work_dir():
-    '''
+    """
     Lascia selezionare all'utente la cartella di lavoro da utilizzare
 
     Return:
     Percorso della cartella selezionata dall'utente
-    '''
+    """
 
     # Seleziona la cartella da cui caricare i profili
     root = tk.Tk()
@@ -269,14 +269,14 @@ def _select_work_dir():
 ############### Scraping Functions Definition ###############
 
 def _scrape_telegram(people, save_people_dir, image_dir):
-    '''
+    """
     Scarica le foto profilo degli utenti Telegram
 
     Params:
     @people: Profili (classes.person) di cui completare il profilo Telegram scaricandone le immagini
     @save_people_dir: Directory dove salvare le informazioni dei profili
     @image_dir: Directory dove salvare le cartelle contenenti le immagini profilo
-    '''
+    """
 
     # Variabili locali
     tg_profiles_list = []
@@ -332,18 +332,18 @@ def _scrape_telegram(people, save_people_dir, image_dir):
 
 
 def _scrape_facebook(people, save_dir_people):
-    '''
+    """
     Esegue l'associazione dei profili delle persone a Facebook
 
     Params:
     @people: Lista di classes.person a cui associare un profilo Facebook
     @save_people_dir: Cartella dove salvare i file profilo
-    '''
+    """
 
     # Apre il browser per Facebook
     _scrape_logger.info('Creation of Facebook scraper')
     fb_scraper = fb_functions.fb_scraper(_fb_logger)
-    fb_scraper.init_scraper(use_proxy=False)
+    fb_scraper.init_scraper()
     if not fb_scraper.fb_login(password_manager.fb_email, password_manager.fb_password):
         print(colored('[FACEBOOK]', 'blue', 'on_white') + ' Unable to login to Facebook')
         _scrape_logger.error('Unable to login to Facebook')
@@ -390,13 +390,13 @@ def _scrape_facebook(people, save_dir_people):
 
 
 def _scrape_instagram(people, save_people_dir):
-    '''
+    """
     Esegue l'associazione dei profili delle persone a Instagram
 
     Params:
     @people: Lista di classes.person a cui associare un profilo Instagram
     @save_people_dir: Cartella dove salvare i file profilo
-    '''
+    """
 
     # Crea l'istanza lo scraper Instagram
     _scrape_logger.info('Creation of Instagram scraper')
@@ -447,13 +447,13 @@ def _scrape_instagram(people, save_people_dir):
 
 
 def _scrape_twitter(people, save_people_dir):
-    '''
+    """
     Esegue l'associazione dei profili delle persone a Twitter
 
     Params:
     @people: Lista di classes.person a cui associare un profilo Twitter
     @save_people_dir: Cartella dove salvare i file profilo
-    '''
+    """
 
     # Istanzia lo scraper per Twitter
     tw_scraper = tw_functions.tw_scraper(_tw_logger)
@@ -539,9 +539,9 @@ def scrape_group():
 
 
 def resume_scrape_session():
-    '''
+    """
     Riprende l'esecuzione di una precedente operazione di scraping
-    '''
+    """
 
     global _base_dir, _db_path
 

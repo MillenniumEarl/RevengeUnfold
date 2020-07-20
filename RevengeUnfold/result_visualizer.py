@@ -14,12 +14,12 @@ from tqdm import tqdm
 import database
 
 def _select_work_dir():
-    '''
+    """
     Lascia selezionare all'utente la cartella di lavoro da utilizzare
 
     Return:
     Percorso della cartella selezionata dall'utente
-    '''
+    """
 
     # Seleziona la cartella da cui caricare i profili
     root = tk.Tk()
@@ -35,7 +35,7 @@ def _select_work_dir():
     return selected_dir
 
 def _load_people_profiles(load_dir):
-    '''
+    """
     Load previously saved user profiles
 
     Params:
@@ -43,7 +43,7 @@ def _load_people_profiles(load_dir):
 
     Return:
     List of profiles (classes.person)
-    '''
+    """
 
     # Local variables
     profiles_list = []
@@ -59,13 +59,13 @@ def _load_people_profiles(load_dir):
     return profiles_list
 
 def _export_to_csv(peoples_data, save_path):
-    '''
+    """
     Export user profile data to a CSV file
 
     Params:
     @peoples_data: List of classes.person objects
     @save_path: Path to save the CSV file
-    '''
+    """
 
     # Opens the CSV file for writing saving
     with open(save_path, 'w', encoding='utf-16') as f:

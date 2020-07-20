@@ -3,37 +3,37 @@ from geopy.geocoders import Nominatim
 
 class location:
     """
-    Class used to represents a place 
+    Class used to represents a place
     
     Attributes
     ----------
-    name : str
+    name: str
         Name of the place
-    time : datetime
+    time: datetime
         Location detection date
-    latitude : float
+    latitude: float
         Latitude of the place
-    longitude : float
+    longitude: float
         Longitude of the place
-    altitude : float
+    altitude: float
         Altitude of the place
-    is_valid : bool
+    is_valid: bool
         If True the place is an existing place
 
     Methods
     -------
-    from_coordinates(latitude, longitude, time_detection=None)
+    from_coordinates(latitude, longitude, time_detection)
         Get the info about a place from it's coordinates
-    from_name(name, time_detection=None)
+    from_name(name, time_detection)
         Get the info about a place from it's name
     """
     def __init__(self):
-        self.name = None
-        self.time = None
-        self.latitude = None
-        self.longitude = None
-        self.altitude = None
-        self.is_valid = False
+        self.name:str = None
+        self.time:'datetime.datetime' = None
+        self.latitude:float = None
+        self.longitude:float = None
+        self.altitude:float = None
+        self.is_valid:bool = False
 
     def __eq__(self, other): 
         if not isinstance(other, location):
@@ -43,16 +43,16 @@ class location:
 
         return self.latitude == other.latitude and self.longitude == other.longitude
 
-    def from_coordinates(self, latitude: str, longitude: str, time_detection=None):
+    def from_coordinates(self, latitude:str, longitude:str, time_detection:'datetime.datetime'=None):
         """Save the location of a place based on its coordinates
 
         Parameters
         ----------
-        latitude : str
+        latitude: str
             Location latitude
-        longitude : str
+        longitude: str
             Location longitude
-        time_detection : datetime, optional
+        time_detection: datetime, optional
             Position detection date
         """
 
@@ -70,14 +70,14 @@ class location:
             self.is_valid = True
         else: self.is_valid = False
 
-    def from_name(self, name: str, time_detection=None):
+    def from_name(self, name:str, time_detection:'datetime.datetime'=None):
         """Save the location of a place based on its name
 
         Parameters
         ----------
-        name : str
+        name: str
             Name of the place from which to obtain the coordinates
-        time_detection : datetime, optional
+        time_detection: datetime, optional
             Position detection date
         """
 

@@ -9,12 +9,12 @@ from result_visualizer import visualize_result
 
 
 def select_function():
-    '''
+    """
     Mostra all'utente le scelte possibili per il programma
 
     Return:
     Indice dell'operazione selezionata, -1 se il valore non e' valido
-    '''
+    """
 
     # Menu di selezione del gruppo da analizzare
     print(colored('[SYSTEM]', 'green') + ' Select operation:')

@@ -8,7 +8,7 @@ from PIL import Image
 
 
 def only_ASCII(s):
-    '''
+    """
     Elimina tutti i caratteri non ASCII da una stringa
 
     Params:
@@ -16,7 +16,7 @@ def only_ASCII(s):
 
     Return:
     Stringa senza caratter non ASCII
-    '''
+    """
 
     # Ottiene il set di caratteri non stampabili da rimuovere
     printable = set(string.printable)
@@ -32,7 +32,7 @@ def only_ASCII(s):
 
 
 def list_to_chunks(lst, n):
-    '''
+    """
     Divide una lista in liste da n parti ciascuna
 
     Params:
@@ -41,14 +41,14 @@ def list_to_chunks(lst, n):
 
     Return:
     Lista di liste
-    '''
+    """
     for i in range(0, len(lst), n):
         yield list[i:i + n]
 
 
 def concat(*args, separator=' '):
-    '''
-    '''
+    """
+    """
 
     nonnull_args = [str(arg).strip() for arg in args if arg]  # Filter NULLs
     good_args = [arg for arg in nonnull_args if arg]          # Filter blanks
@@ -86,8 +86,8 @@ def timeit(method):
 
 
 def banner():
-    '''
-    '''
+    """
+    """
 
     from pyfiglet import Figlet
 
@@ -96,8 +96,8 @@ def banner():
 
 
 def create_logger(name, save_path):
-    '''
-    '''
+    """
+    """
 
     # Crea il logger e la formattazione da usare
     logger = logging.getLogger(name)

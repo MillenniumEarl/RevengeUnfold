@@ -6,7 +6,7 @@ from telethon.tl.types import InputPeerEmpty
 from telethon import functions
 
 def connect_telegram_client(phone_number, api_id, api_hash):
-    '''
+    """
     Crea un client e lo connette a Telegram.
     Se il client non è autenticato invia un codice sul profilo Telegram.
 
@@ -17,7 +17,7 @@ def connect_telegram_client(phone_number, api_id, api_hash):
 
     @return:
     Client connesso e autenticato a Telegram
-    '''
+    """
 
     # Crea il client Telegram
     client = TelegramClient(phone_number, api_id, api_hash)
@@ -37,9 +37,9 @@ def connect_telegram_client(phone_number, api_id, api_hash):
 
 
 def check_username_existance(tg_client, username):
-    '''
+    """
     Controlla se il nome utente specificato esiste
-    '''
+    """
 
     try:
         result = tg_client(functions.account.CheckUsernameRequest(
@@ -51,9 +51,9 @@ def check_username_existance(tg_client, username):
 
 
 def get_profiles(tg_client, value):
-    '''
+    """
     Ottiene il profilo Telegram utilizzando username o user id
-    '''
+    """
 
     try:
         result = tg_client(functions.help.GetUserInfoRequest(user_id=value))
@@ -63,7 +63,7 @@ def get_profiles(tg_client, value):
 
 
 def download_users_profile_photos(tg_client, tg_profile, save_dir):
-    '''
+    """
     Scarica tutte le foto profilo dell'utente passato per parametro.
     Le foto salvate avranno nome 'userID_index.jpg'
 
@@ -71,7 +71,7 @@ def download_users_profile_photos(tg_client, tg_profile, save_dir):
     @tg_client: Client Telegram connesso da usare per estrapolare i dati
     @tg_profile: Profilo da cui scaricare le immagini
     @save_dir: Directory di salvataggio delle immagini
-    '''
+    """
 
     # Crea una cartella che conterrà le immagini di profilo
     if not os.path.exists(save_dir):
@@ -115,7 +115,7 @@ def download_users_profile_photos(tg_client, tg_profile, save_dir):
 
 def get_all_conversations(tg_client, only_groups=False,
                           last_date=None, chat_size=200):
-    '''
+    """
     Ottiene tutte le conversazioni aperte sul client impostato.
 
     Params:
@@ -127,7 +127,7 @@ def get_all_conversations(tg_client, only_groups=False,
     @return:
     Lista di tuple, ogni record è un gruppo (gruppo, 0), un canale (canale, 1),
     una chat privata (chat, 2) o una conversazione non identificabile (?, 3)
-    '''
+    """
 
     # Variabili locali
     chats = []
@@ -164,7 +164,7 @@ def get_all_conversations(tg_client, only_groups=False,
 
 
 def get_group_channel_members(tg_client, conversation):
-    '''
+    """
     Ottiene gli iscritti ad uno specifico gruppo o canale.
     Può non estrarre degli utenti in caso di gruppi molto ampi.
     E' necessario essere ammnistratori per ottenere i dati di un canale privato.
@@ -175,7 +175,7 @@ def get_group_channel_members(tg_client, conversation):
 
     Return:
     Lista di profili Telegram iscritti al gruppo
-    '''
+    """
 
     # Variabili locali
     all_participants = []
@@ -193,9 +193,9 @@ def get_group_channel_members(tg_client, conversation):
 
 
 def download_media_from_conversation(tg_client, conversation, save_dir, message_limit=3000):
-    '''
+    """
     DON'T USE THIS
-    '''
+    """
 
     for message in tg_client.iter_messages(conversation, limit=message_limit):
         if message.media is not None:

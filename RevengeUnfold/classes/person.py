@@ -1,3 +1,6 @@
+############### Standard Imports ###############
+from typing import List
+
 ############### External Modules Imports ###############
 import photohash
 
@@ -11,21 +14,21 @@ class person:
     
     Attributes
     ----------
-    id : int
+    id: int
         Unique identifier of the person 
-    first_name : str
+    first_name: str
         Name of the person
-    last_name : str
+    last_name: str
         Surname of the person
-    phones : list
+    phones: list
         List of phones (classes.phone) associated with the person
-    locations : list
+    locations: list
         List of places (classes.location) visited by the person
-    profiles : list
+    profiles: list
         List of social profiles (classes.profiles) associated with the person
-    face_encodings : list
+    face_encodings: list
         List of face encodings (128-d) associated with the person
-    perceptual_hashes : list
+    perceptual_hashes: list
         List of perceptual hashes (str) identifying the images on the person's social profiles
 
     Methods
@@ -53,17 +56,17 @@ class person:
         """
         Parameters
         ----------
-        person_id : int
+        person_id: int
             Unique identifier of the person
         """
-        self.id = person_id
-        self.first_name = None
-        self.last_name = None
-        self.phones = []
-        self.locations = []
-        self.profiles = []
-        self.face_encodings = []
-        self.perceptual_hashes = []
+        self.id:int = person_id
+        self.first_name:str = None
+        self.last_name:str = None
+        self.phones:List['classes.phone'] = []
+        self.locations:List['classes.location'] = []
+        self.profiles:List['classes.profiles.base_profile'] = []
+        self.face_encodings:list = []
+        self.perceptual_hashes:list = []
 
     def __getstate__(self):
         return self.__dict__
@@ -71,12 +74,12 @@ class person:
     def __setstate__(self, d):
         self.__dict__ = d
 
-    def _prepare_search_data(self, custom_keywords:list = None):
-        '''Collects the data associated with the user profile and creates a list of usernames and keywords to be used in the search for profiles
+    def _prepare_search_data(self, custom_keywords:list = None)->dict:
+        """Collects the data associated with the user profile and creates a list of usernames and keywords to be used in the search for profiles
 
         Parameters
         ----------
-        custom_keywords : list, optional
+        custom_keywords: list, optional
             List of additional keywords (str) to be used in the search
 
         Return
@@ -84,7 +87,7 @@ class person:
         dict
             'usernames_list': List of usernames
             'keywords_list': List of keyword
-        '''
+        """
 
         # Local variables
         keywords = []
@@ -128,14 +131,14 @@ class person:
 
         return {'usernames_list': usernames_list, 'keywords_list': keywords}
 
-    def add_profile(self, profile):
-        '''Add a social profile to the list of profiles associated with the user
+    def add_profile(self, profile:'classes.profiles.base_profile'):
+        """Add a social profile to the list of profiles associated with the user
 
         Parameters
         ----------
         profile: classes.profiles
             Social profile to associate
-        '''
+        """
 
         # Add profile data to the person (verify that first and last name do not contain numbers)
         if self.first_name is None and profile.first_name is not None:
@@ -169,8 +172,8 @@ class person:
         # Add social profile
         self.profiles.append(profile)
 
-    def find_facebook_profile(self, fb_scraper, *custom_keywords):
-        '''Based on the person's data, search for the person's Facebook profile
+    def find_facebook_profile(self, fb_scraper:'scrape_functions.fb_functions.fb_scraper', *custom_keywords:str)->int:
+        """Based on the person's data, search for the person's Facebook profile
 
         Parameters
         ----------
@@ -183,7 +186,7 @@ class person:
         ------
         int
             Best match value (if it is 0, no profile was found)
-        '''
+        """
 
         # Local variables
         possibile_profiles = []
@@ -225,8 +228,8 @@ class person:
             return best_match
         return 0
 
-    def find_instagram_profile(self, ig_scraper, *custom_keywords):
-        '''Based on the person's data, search for the person's Instagram profile
+    def find_instagram_profile(self, ig_scraper:'scrape_functions.ig_functions.ig_scraper', *custom_keywords:str)->int:
+        """Based on the person's data, search for the person's Instagram profile
 
         Parameters
         ----------
@@ -239,7 +242,7 @@ class person:
         ------
         int
             Best match value (if it is 0, no profile was found)
-        '''
+        """
 
         # Local variables
         possibile_profiles = []
@@ -282,19 +285,19 @@ class person:
             return best_match
         return 0
 
-    def find_telegram_profile(self):
-        '''Based on the person's data, search for the person's Telegram profile
+    def find_telegram_profile(self)->int:
+        """Based on the person's data, search for the person's Telegram profile
 
         Return
         ------
         int
             Best match value (if it is 0, no profile was found)
-        '''
+        """
         # TODO
-        print()
+        return 0
 
-    def find_twitter_profile(self, tw_scraper, *custom_keywords):
-        '''Based on the person's data, search for the person's Twitter profile
+    def find_twitter_profile(self, tw_scraper:'scrape_functions.tw_functions.tw_scraper', *custom_keywords:str)->int:
+        """Based on the person's data, search for the person's Twitter profile
 
         Parameters
         ----------
@@ -307,7 +310,7 @@ class person:
         ------
         int
             Best match value (if it is 0, no profile was found)
-        '''
+        """
 
         # Local variables
         possibile_profiles = []
@@ -350,19 +353,19 @@ class person:
             return best_match
         return 0
 
-    def get_full_name(self):
-        '''Get the person's full name checking for None values
+    def get_full_name(self)->str:
+        """Get the person's full name checking for None values
 
         Return
         ------
         str
             Full name without 'None' in the string
-        '''
+        """
 
         fullname = '{} {}'.format(self.first_name, self.last_name)
         return fullname.replace('None','').strip()
 
-    def get_identifiability(self):
+    def get_identifiability(self)->int:
         """ It obtains an index of identifiability of the person's social profiles based on the known data
 
         Return
@@ -384,7 +387,7 @@ class person:
 
         return identifiability
 
-    def get_profiles(self, platform:str=None):
+    def get_profiles(self, platform:str=None)->List['classes.profiles.base_profile']:
         """Return the social profiles associated with the person
 
         Parameters

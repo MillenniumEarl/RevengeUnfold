@@ -1,8 +1,8 @@
 ################## Standard Imports ##################
 import sqlite3
 
-def create_connection(db_path):
-    ''' 
+def create_connection(db_path:str):
+    """ 
     Crea una connessione ad un database SQLite. Se non esiste il database lo crea.
 
     Params:
@@ -10,7 +10,7 @@ def create_connection(db_path):
 
     Return:
     Connessione al database
-    '''
+    """
     conn = None
     try:
         conn = sqlite3.connect(db_path)
@@ -18,12 +18,12 @@ def create_connection(db_path):
     except Exception as ex: print(ex)
 
 def create_database(db_path):
-    '''
+    """
     Crea le tabelle del database. Se non esiste il database lo crea.
 
     Params:
     @db_path: Percorso del database
-    '''
+    """
 
     # Crea il database (se non esiste) e si connette
     connection = create_connection(db_path)
@@ -35,13 +35,13 @@ def create_database(db_path):
     connection.close()
 
 def add_new_people(db_path, people_list):
-    '''
+    """
     Aggiunge nuove persone al database
 
     Params:
     @db_path: Percorso del database
     @people_list: Lista di profili (classes.person) da aggiungere
-    '''
+    """
 
     # Variabili locali
     sql_insert_query = 'INSERT INTO people VALUES (NULL, ?, 0, 0, 0, 0)'
@@ -65,7 +65,7 @@ def add_new_people(db_path, people_list):
     connection.close()
 
 def get_uncheked_people_ids_for_platform(db_path, platform):
-    '''
+    """
     Ritorna una lista di ID di persone che non sono state controllate per una specifica piattaforma
 
     Params:
@@ -74,7 +74,7 @@ def get_uncheked_people_ids_for_platform(db_path, platform):
 
     Return:
     Lista di ID di classes.person che non sono stati controllati per la piattaforma specificata
-    '''
+    """
 
     # Variabili globali
     prefix = ''
@@ -104,7 +104,7 @@ def get_uncheked_people_ids_for_platform(db_path, platform):
     return [row[0] for row in rows]
 
 def get_completed_people_ids(db_path):
-    '''
+    """
     Ritorna una lista di ID di persone che hanno subito un controllo per tutti i profili
 
     Params:
@@ -112,7 +112,7 @@ def get_completed_people_ids(db_path):
 
     Return:
     Lista di ID di classes.person che sono stati controllati per tutte le piattaforme disponibili
-    '''
+    """
 
     # Variabili globali
     sql_select_query = 'SELECT person_id FROM people WHERE tg_checked == 1 AND fb_checked == 1 AND ig_checked == 1 AND tw_checked == 1'
@@ -132,14 +132,14 @@ def get_completed_people_ids(db_path):
     return [row[0] for row in rows]
 
 def set_person_checked(db_path, person_id, platform):
-    '''
+    """
     Imposta una persona come 'controllata' per una specifica piattaforma
 
     Params:
     @db_path: Percorso del database
     @person_id: ID della persona controllata
     @platform: Nome della piattaforma
-    '''
+    """
 
     # Variabili locali
     prefix = ''

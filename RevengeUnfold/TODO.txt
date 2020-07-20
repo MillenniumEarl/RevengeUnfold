@@ -1,3 +1,4 @@
 classes.person, add_profile(), line 158: Check if face encoding is already in list
 classes.person, find_telegram_profile(), line 296: Code function
-
+scrape_functions.ig_functions, download_profile_photo(), line 521: Change why it returns False
+scrape_functions.ig_functions, download_profile_photo(), line 524: Change why it returns False

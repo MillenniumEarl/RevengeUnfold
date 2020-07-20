@@ -1,7 +1,9 @@
 ############### Standard Imports ###############
+from __future__ import annotations
 import os
 import tempfile
 import shutil
+from typing import Type, List
 
 ############### External Modules Imports ###############
 import face_recognition
@@ -21,37 +23,37 @@ class base_profile:
 
     Attributes
     ----------
-    platform : str
+    platform: str
         Name of the platform from which the data stored in the profile comes
-    user_id : int
+    user_id: int
         Unique ID of the account on the platform
-    username : str
+    username: str
         Account username
-    first_name : str
+    first_name: str
         Name of the user associated with the account
-    last_name : str
+    last_name: str
         Surname of the user associated with the account
-    full_name : str
+    full_name: str
         Full name (first and last name) of the user associated with the account. Used in some platforms that do not divide name and surname
-    phone : classes.phone
+    phone: classes.phone
         Data on the phone (classes.phone) associated with the account
-    locations : list
+    locations: list
         List of locations associated with the account
-    is_elaborated : bool
+    is_elaborated: bool
         Value indicating whether the profile has been processed and is ready for comparison with other profiles
     """
     def __init__(self):
-        self.platform = None
-        self.user_id = None
-        self.username = None
-        self.first_name = None
-        self.last_name = None
-        self.full_name = None
-        self.phone = None
-        self.locations = []
-        self.is_elaborated = False
-        self._face_encodings = []
-        self._perceptual_hashes = []
+        self.platform:str = None
+        self.user_id:int = None
+        self.username:str = None
+        self.first_name:str = None
+        self.last_name:str = None
+        self.full_name:str = None
+        self.phone:Type[phone] = None
+        self.locations:List[Type['classes.location']] = []
+        self.is_elaborated:bool = False
+        self._face_encodings:list = []
+        self._perceptual_hashes:list = []
 
     def __getstate__(self):
         return self.__dict__
@@ -89,7 +91,7 @@ class base_profile:
                     self.locations[0].latitude,
                     self.locations[0].longitude))
 
-    def compare_profile(self, profile:base_profile):
+    def compare_profile(self, profile:base_profile)->int:
         """Compare the profile with another profile to see if they belong to the same person
 
         Compare the profile with the one passed as a parameter and compare the general information, 
@@ -98,7 +100,7 @@ class base_profile:
 
         Parameters
         ----------
-        profile : base_profile
+        profile: base_profile
             Profile derived from base_profile to be compared to the current profile
 
         Return
@@ -211,10 +213,10 @@ class telegram_profile(base_profile):
     """
     def __init__(self):
         base_profile.__init__(self)
-        self.platform = 'Telegram'
+        self.platform:str = 'Telegram'
         self._tg_profile = None
 
-    def get_profile_from_tg_profile(self, tg_profile:tg_functions.TelegramClient):
+    def get_profile_from_tg_profile(self, tg_profile:Type[tg_functions.TelegramClient])->bool:
         """Given a Telegram profile fill in the fields of the current profile
 
         Parameters
@@ -241,7 +243,7 @@ class telegram_profile(base_profile):
             self.phone = phone.phone(tg_profile.phone)
         return True
 
-    def get_profile_from_userid(self, userid:int, tg_client:tg_functions.TelegramClient=None):
+    def get_profile_from_userid(self, userid:int, tg_client:Type[tg_functions.TelegramClient]=None)->bool:
         """Gets the data of a Telegram profile starting from the ID of that profile
 
         Parameters
@@ -269,7 +271,7 @@ class telegram_profile(base_profile):
         else:
             return self.get_profile_from_tg_profile(profile)
 
-    def get_profile_from_username(self, username:str, tg_client:tg_functions.TelegramClient=None):
+    def get_profile_from_username(self, username:str, tg_client:Type[tg_functions.TelegramClient]=None)->bool:
         """Gets the data of a Telegram profile starting from the username of that profile
 
         Parameters
@@ -295,7 +297,7 @@ class telegram_profile(base_profile):
         
         return self.get_profile_from_tg_profile(profile)
 
-    def download_profile_photos(self, save_dir:str, tg_client:tg_functions.TelegramClient=None):
+    def download_profile_photos(self, save_dir:str, tg_client:Type[tg_functions.TelegramClient]=None)->bool:
         """Save user profile images (if any)
         
         Parameters
@@ -329,7 +331,7 @@ class telegram_profile(base_profile):
 
         return True
 
-    def elaborate_images(self, image_dir:str=None, tg_client:tg_functions.TelegramClient=None):
+    def elaborate_images(self, image_dir:str=None, tg_client:Type[tg_functions.TelegramClient]=None)->bool:
         """Download and process the images associated with the profile to identify faces and hashes of the images
 
         Parameters
@@ -393,12 +395,12 @@ class instagram_profile(base_profile):
     """
     def __init__(self):
         base_profile.__init__(self)
-        self.platform = 'Instagram'
+        self.platform:str = 'Instagram'
         self._ig_profile = None
-        self.biography = None
-        self.is_private = None
+        self.biography:str = None
+        self.is_private:bool = None
 
-    def get_profile_from_username(self, ig_scraper, username:str):
+    def get_profile_from_username(self, ig_scraper:'scrape_functions.ig_functions.ig_scraper', username:str)->bool:
         """Gets the data of a Instagram profile starting from the username of that profile
 
         Overwrites data previously saved in the calling profile.
@@ -421,12 +423,13 @@ class instagram_profile(base_profile):
         profile = ig_scraper.find_user_by_username(username)
 
         if profile is None:
-            return False  # If the profile corresponding to the indicated data does not exist, False returns
-        else:
-            self.__dict__.update(profile.__dict__)
-            return True
+            return False  # If the profile corresponding to the indicated data does not exist, returns False
+        
+        # Else update profile
+        self.__dict__.update(profile.__dict__)
+        return True
 
-    def download_photos(self, ig_scraper, save_dir:str):
+    def download_photos(self, ig_scraper:'scrape_functions.ig_functions.ig_scraper', save_dir:str)->bool:
         """Save user post' images (if any)
         
         Parameters
@@ -456,7 +459,7 @@ class instagram_profile(base_profile):
 
         return True
 
-    def elaborate_images(self, ig_scraper, image_dir:str=None):
+    def elaborate_images(self, ig_scraper:'scrape_functions.ig_functions.ig_scraper', image_dir:str=None)->bool:
         """Download and process the images associated with the profile to identify faces and hashes of the images
 
         Parameters
@@ -503,7 +506,7 @@ class instagram_profile(base_profile):
         self.is_elaborated = True
         return True
 
-    def get_locations_history(self, ig_scraper):
+    def get_locations_history(self, ig_scraper:'scrape_functions.ig_functions.ig_scraper')->bool:
         """Gets the places visited by the user
 
         Get all post geotags for a specific Instagram profile and from those all the places visited by the user.
@@ -544,10 +547,10 @@ class facebook_profile(base_profile):
     """
     def __init__(self):
         base_profile.__init__(self)
-        self.platform = 'Facebook'
-        self.biography = None
+        self.platform:str = 'Facebook'
+        self.biography:str = None
 
-    def get_profile_from_username(self, fb_scraper, username:str):
+    def get_profile_from_username(self, fb_scraper, username:str)->bool:
         """Gets the data of a Facebook profile starting from the username of that profile
 
         Overwrites data previously saved in the calling profile.
@@ -579,7 +582,7 @@ class facebook_profile(base_profile):
         self.__dict__.update(profile.__dict__)
         return True
 
-    def download_photos(self, fb_scraper, save_dir:str):
+    def download_photos(self, fb_scraper:'scrape_functions.fb_functions.fb_scraper', save_dir:str)->bool:
         """Save user post' images (if any)
         
         Parameters
@@ -608,7 +611,7 @@ class facebook_profile(base_profile):
             self, os.path.join(save_dir, 'profile.jpg'))
         return True
 
-    def elaborate_images(self, fb_scraper, image_dir:str=None):
+    def elaborate_images(self, fb_scraper:'scrape_functions.fb_functions.fb_scraper', image_dir:str=None)->bool:
         """Download and process the images associated with the profile to identify faces and hashes of the images
 
         Parameters
@@ -670,10 +673,10 @@ class twitter_profile(base_profile):
     """
     def __init__(self):
         base_profile.__init__(self)
-        self.platform = 'Twitter'
-        self.biography = None
+        self.platform:str = 'Twitter'
+        self.biography:str = None
 
-    def get_profile_from_username(self, tw_scraper, username:str):
+    def get_profile_from_username(self, tw_scraper:'scrape_functions.tw_functions.tw_scraper', username:str)->bool:
         """Gets the data of a Twitter profile starting from the username of that profile
 
         Overwrites data previously saved in the calling profile.
@@ -705,7 +708,7 @@ class twitter_profile(base_profile):
         self.__dict__.update(profile.__dict__)
         return True     
 
-    def download_photos(self, tw_scraper, save_dir:str):
+    def download_photos(self, tw_scraper:'scrape_functions.tw_functions.tw_scraper', save_dir:str)->bool:
         """Save the last six photos posted and profile photo
         
         Parameters
@@ -734,7 +737,7 @@ class twitter_profile(base_profile):
             self, os.path.join(save_dir, '{}_profile.jpg'.format(self.username)))
         return True
 
-    def elaborate_images(self, tw_scraper, image_dir:str=None):
+    def elaborate_images(self, tw_scraper:'scrape_functions.tw_functions.tw_scraper', image_dir:str=None)->bool:
         """Download and process the images associated with the profile to identify faces and hashes of the images
 
         Parameters

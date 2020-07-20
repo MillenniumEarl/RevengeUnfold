@@ -2,6 +2,7 @@
 import os
 import datetime
 import sys
+from typing import Type, List
 
 ############### External Modules Imports ###############
 from instaloader import ProfileNotExistsException, PrivateProfileNotFollowedException
@@ -16,6 +17,10 @@ import password_manager
 
 # Global variables
 _anonymous_client_blocked = False
+MESSAGE_TOO_MANY_REQUESTS_ANONYMOUS = 'Too many requests for the anonymous Instagram client'
+MESSAGE_TOO_MANY_REQUESTS_LOGGED = 'Too many. requests for the Instagram client'
+MESSAGE_CLIENT_BLOCKED = 'Instagram client has been blocked, please try again in a few hours'
+SESSION_FILE_NAME = 'session.ig_session'
 
 # Manage 429 rate limit for anonymous client
 def too_many_requests_hook(exctype, value, traceback):
@@ -42,30 +47,81 @@ TOO_MANY_ANON_REQUESTS = 405
 TOO_MANY_REQUESTS = 406
 
 class ig_scraper:
-    '''
-    Classe che rappresenta un'istanza Instaloader e permette lo scraping di Instagram
-    '''
+    """Class that represents an Instaloader instance and allows Instagram scraping
 
-    def __init__(self, logger=None):
-        self._ig_client = None
-        self._logger = logger
-        self.is_blocked = False
-        self.is_logged = False
-        self.is_initialized = False
-        self.errors = []
+    Attributes
+    ----------
+    is_blocked: bool
+        Specifies whether the client has been blocked from accessing Facebook
+    is_logged: bool
+        Specifies whether the client has authenticated to Facebook
+    is_initialized: bool
+        Specifies whether the client is initialized
+    errors: list
+        List of errors occurred
 
-    def _manage_error(self, error_code, ex):
-        '''
-        Gestisce gli errori e la loro scrittura su logger
-        '''
+    Methods
+    -------
+    terminate()
+        Close the scraper and release the resources
+    login_anonymously()
+        It connects to Instagram without the need for credentials
+    login(username, password)
+        Connect to Instagram using credentials
+    find_user_by_username(username)
+        Find a user on Instagram using their username
+    find_users_by_keywords(*keywords, max_profiles)
+        Find a list of users on Instagram using keywords
+    find_similar_profiles(ig_profile, max_profiles)
+        Find Instagram profiles similar to the one specified
+    download_post_images(ig_profile, save_dir, max_posts)
+       Download the images present in the posts of an Instagram profile
+    download_profile_photo(ig_profile, save_dir)
+        Download the profile photo of an Instagram profile
+    get_location_history(ig_profile)
+       Get the location history of an Instagram profile
+    """
+
+    def __init__(self, logger:Type['logging.Logger']=None):
+        """
+        Parameters
+        ----------
+        logger: logging.Logger
+           Logger used to save events
+           Default None
+        """
+        self._ig_client:Type[instaloader.Instaloader] = None
+        self._logger:Type['logging.Logger'] = logger
+        self.is_blocked:bool = False
+        self.is_logged:bool = False
+        self.is_initialized:bool = False
+        self.errors:List[scraper_error.scraper_error] = []
+
+    def _manage_error(self, error_code:int, ex:Exception):
+        """It manages errors and their writing on logger
+
+        Save errors on self.errors and, if a logger has been specified, 
+        write an error message
+
+        Parameters
+        ----------
+        error_code: int
+            Identification code of the error to be written on the logger
+        ex: Exception
+            Exception to write on the logger
+        """
+
+        # Save the error in the list
         self.errors.append(scraper_error.scraper_error(error_code, ex, datetime.datetime.now()))
         if ex is not None: message = 'CODE: {} - {}'.format(error_code, str(ex))
         else: message = 'CODE: {}'.format(error_code)
 
+        # Writes the message to the log file
         if self._logger is not None:
             if error_code >= 400: self._logger.error(message)
             else: self._logger.warning(message)
 
+        # Check if the user has been blocked and end the scraping
         if error_code == TOO_MANY_ANON_REQUESTS:
             if self._logger is not None: self._logger.warning('Changing from anonymous client to logged client')
             self.login(password_manager.ig_username, password_manager.ig_password)
@@ -74,28 +130,32 @@ class ig_scraper:
             self.is_blocked = True
             self.terminate()
 
-    def _connect_instagram_client(self, username, password, anonymous=True):
-        '''
-        Crea e connette un client Instagram.
-        Se anonymous = True le credenziali non verrano usate (possono essere qualunque valore)
+    def _connect_instagram_client(self, username:str, password:str, anonymous:bool=True)->bool:
+        """Create and connect an Instagram client
 
-        Params:
-        @username: Nome utente del proprio account Instagram
-        @password: Password del proprio account Instagram
-        @anonymous [True]: Connessione in maniera anonima (senza credenziali)
+        If anonymous = True the credentials will not be used (they can be any value)
 
-        Return:
-        True se la connessione é avvenuta correttamente, False altrimenti
-        '''
+        Parameters
+        ----------
+        username: str
+            Instagram account username
+        password: str
+            Instagram account password
+        anonymous: bool
+            Connection anonymously (without credentials)
+            Default True
+         
+        Return
+        ------
+        bool
+            True if the connection was successful, False otherwise
+        """
 
-        # Crea il client
+        # Create the client
         ig_client = instaloader.Instaloader(quiet=True, download_videos=False,
                                             download_comments=False, compress_json=True, max_connection_attempts=1)
-        # File di salvataggio della sessione
-        ig_session_file = 'instagram_session.session'
 
-        # Se è stato specificato un client anonimo non vengono specificate le
-        # credenziali
+        # Credentials are not specified if an anonymous client is specified
         if anonymous:
             self._ig_client = ig_client
 
@@ -103,17 +163,18 @@ class ig_scraper:
                 self._logger.info('Successfully connected anonymously')
             return True
 
-        # Se esiste un file di sessione già configurato lo carica
-        if os.path.exists(ig_session_file) and not anonymous:
-            ig_client.load_session_from_file(username, ig_session_file)
+        # If there is a session file already configured it loads it
+        if os.path.exists(SESSION_FILE_NAME) and not anonymous:
+            ig_client.load_session_from_file(username, SESSION_FILE_NAME)
         else:
             try:
                 ig_client.login(username, password)
-                ig_client.save_session_to_file(ig_session_file)
+                ig_client.save_session_to_file(SESSION_FILE_NAME)
             except Exception as ex:
                 self._manage_error(LOGIN_GENERIC_ERROR, ex)
                 return False
 
+        # Test the validity of the connection
         if ig_client.test_login() is None:
             return False
 
@@ -123,20 +184,23 @@ class ig_scraper:
                 'Successfully connected to user {}'.format(generic.only_ASCII(username)))
         return True
 
-    def _convert_profile_from_instaloader(self, instaloader_profile):
-        '''
-        Convert an Instaloader profile to a classes.profiles.instagram_profiles
+    def _convert_profile_from_instaloader(self, instaloader_profile:Type[instaloader.Profile])->profiles.instagram_profile:
+        """Convert an Instaloader profile to a classes.profiles.instagram_profile
 
-        Params:
-        @instaloader_profile: Instaloader profile to convert
+        Parameters
+        ----------
+        instaloader_profile: instaloader.Profile
+            Instaloader profile to convert
 
         Return
-        The converted classes.profiles.instagram_profile object
-        '''
+        ------
+        profiles.instagram_profile
+            Converted profile
+        """
 
         # Check if the client is blocked
         if _anonymous_client_blocked and not self.is_logged:
-            ex = exceptions.TooManyRequests('Too many requests for the anonymous Instagram client')
+            ex = exceptions.TooManyRequests(MESSAGE_TOO_MANY_REQUESTS_ANONYMOUS)
             self._manage_error(TOO_MANY_ANON_REQUESTS, ex)
 
         # Copy the data
@@ -156,40 +220,46 @@ class ig_scraper:
 
         return ig_profile
 
-    def find_similar_profiles(self, ig_profile, max_profiles = 10):
-        '''
-        Trova profili simili a quello specificato.
-        E' necessario essere loggati per usare questa funzione.
+    def find_similar_profiles(self, ig_profile:Type[instaloader.Profile], max_profiles:int=10)->List[profiles.instagram_profile]:
+        """Find profiles similar to the one specified
 
-        Params:
-        @ig_profile: Profilo Instaloader da cui trovare utenti simili
-        @max_profiles: Numero massimo di profili da ottenere
+        You need to be logged in to use this function
 
-        Return:
-        Lista di profili (classes.profiles.ig_profile) simili
-        '''
+        Parameters
+        ----------
+        ig_profile: instaloader.Profile
+            Instaloader profile from which to find similar users
+        max_profiles: int
+            Maximum number of profiles to be obtained
+            Deafult 10
 
-        # E' necessario essere loggati per usare questa funzione
+        Return
+        ------
+        List
+            List of similar profiles (classes.profiles.instagram_profile)
+        """
+
+        # You need to be logged in to use this function
         if not self.is_logged:
             self._manage_error(USER_NOT_LOGGED, None)
             return []
 
         # Check if the logged client is blocked
         if self.is_blocked:
-            ex = exceptions.InstagramClientBlocked('Instagram client has been blocked, please try again in a few hours')
+            ex = exceptions.InstagramClientBlocked(MESSAGE_CLIENT_BLOCKED)
             self._manage_error(CLIENT_BLOCKED, ex)
             return []
 
         try:
-            # Ottiene i profili simili
+            # Get similar profiles
             ig_profiles = ig_profile.get_similar_accounts()
             ig_profiles = [profile for profile in ig_profiles]
 
-            # Limita il numero di profili
+            # Limit the number of profiles
             if len(ig_profiles) > max_profiles:
                 ig_profiles = ig_profiles[:max_profiles]
 
-            # Convert the profile
+            # Convert the profiles
             converted_profiles = []
             for p in ig_profiles:
                 ig_profile = self._convert_profile_from_instaloader(p)
@@ -205,26 +275,29 @@ class ig_scraper:
             self._manage_error(CLIENT_GENERIC_ERROR, ex)
             return []
 
-    def find_user_by_username(self, username):
-        '''
-        Trova un profilo Instagram a partire dal nome utente
+    def find_user_by_username(self, username:str)->profiles.instagram_profile:
+        """Find an Instagram profile by username
 
-        Params:
-        @username: Nome utente dell'utente da trovare
+        Parameters
+        ----------
+        username: str
+            Username of the user to be found
 
-        Return:
-        Profilo individuato (classes.profiles.ig_profile) o None se non viene trovato
-        '''
+        Return
+        ------
+        profiles.instagram_profile
+            Profile found (classes.profiles.instagram_profile) or None if not found
+        """
 
         # Check if the client is blocked
         global _anonymous_client_blocked
         if _anonymous_client_blocked and not self.is_logged:
-            ex = exceptions.TooManyRequests('Too many requests for the anonymous Instagram client')
+            ex = exceptions.TooManyRequests(MESSAGE_TOO_MANY_REQUESTS_ANONYMOUS)
             self._manage_error(TOO_MANY_ANON_REQUESTS, ex)
 
         # Check if the logged client is blocked
         if self.is_blocked:
-            ex = exceptions.InstagramClientBlocked('Instagram client has been blocked, please try again in a few hours')
+            ex = exceptions.InstagramClientBlocked(MESSAGE_CLIENT_BLOCKED)
             self._manage_error(CLIENT_BLOCKED, ex)
             return []
 
@@ -244,11 +317,11 @@ class ig_scraper:
         except ConnectionException as ex:
             if 'redirected to login' in str(ex):
                 _anonymous_client_blocked = True
-                ex = exceptions.TooManyRequests('Too many requests for the anonymous Instagram client')
+                ex = exceptions.TooManyRequests(MESSAGE_TOO_MANY_REQUESTS_ANONYMOUS)
                 self._manage_error(TOO_MANY_ANON_REQUESTS, ex)
                 return self.find_user_by_username(username)
             elif '429 Too Many Requests' in str(ex) and self.is_logged:
-                ex = exceptions.TooManyRequests('Too many requests for the Instagram client')
+                ex = exceptions.TooManyRequests(MESSAGE_TOO_MANY_REQUESTS_LOGGED)
                 self._manage_error(TOO_MANY_REQUESTS, ex)
                 return None
             else:
@@ -258,27 +331,32 @@ class ig_scraper:
             self._manage_error(CLIENT_GENERIC_ERROR, ex)
             return None
 
-    def find_user_by_keywords(self, *keywords, max_profiles = 10):
-        '''
-        Cerca dei profili Instagram in base alle parole chiave usate
+    def find_users_by_keywords(self, *keywords, max_profiles:int=10)->List[profiles.instagram_profile]:
+        """Search for Instagram profiles based on the keywords used
 
-        Params:
-        @keyords: Nome utente dell'utente da trovare
-        @max_profiles: Numero massimo di profili da ottenere
+        Parameters
+        ----------
+        keyords: tuple
+            Keywords to be used in the search
+        max_profiles: int
+            Maximum number of profiles to be obtained
+            Deafult 10
 
-        Return:
-        Lista di profili (classes.profiles.ig_profile) individuati
-        '''
+        Return
+        ------
+        List
+            List of profiles (classes.profiles.instagram_profile) identified
+        """
 
         # Check if the client is blocked
         global _anonymous_client_blocked
         if _anonymous_client_blocked and not self.is_logged:
-            ex = exceptions.TooManyRequests('Too many requests for the anonymous Instagram client')
+            ex = exceptions.TooManyRequests(MESSAGE_TOO_MANY_REQUESTS_ANONYMOUS)
             self._manage_error(TOO_MANY_ANON_REQUESTS, ex)
 
         # Check if the logged client is blocked
         if self.is_blocked:
-            ex = exceptions.InstagramClientBlocked('Instagram client has been blocked, please try again in a few hours')
+            ex = exceptions.InstagramClientBlocked(MESSAGE_CLIENT_BLOCKED)
             self._manage_error(CLIENT_BLOCKED, ex)
             return []
 
@@ -311,11 +389,11 @@ class ig_scraper:
         except ConnectionException as ex:
             if 'redirected to login' in str(ex):
                 _anonymous_client_blocked = True
-                ex = exceptions.TooManyRequests('Too many requests for the anonymous Instagram client')
+                ex = exceptions.TooManyRequests(MESSAGE_TOO_MANY_REQUESTS_ANONYMOUS)
                 self._manage_error(TOO_MANY_ANON_REQUESTS, ex)
-                return self.find_user_by_keywords(keywords, max_profiles)
+                return self.find_users_by_keywords(keywords, max_profiles)
             elif '429 Too Many Requests' in str(ex) and self.is_logged:
-                ex = exceptions.TooManyRequests('Too many requests for the Instagram client')
+                ex = exceptions.TooManyRequests(MESSAGE_TOO_MANY_REQUESTS_LOGGED)
                 self._manage_error(TOO_MANY_REQUESTS, ex)
                 return None
             else:
@@ -325,32 +403,38 @@ class ig_scraper:
             self._manage_error(CLIENT_GENERIC_ERROR, ex)
             return []
 
-    def download_post_images(self, ig_profile, save_dir, max_posts=20):
-        '''
-        Scarica le immagini pesenti nei post di un profilo specificato
+    def download_post_images(self, ig_profile:Type[instaloader.Profile], save_dir:str, max_posts:int=20)->bool:
+        """Download the images in the posts of a specified profile
 
-        Params:
-        @ig_profile: Profilo Instagram (Instaloader) di cui recuperare i post
-        @save_dir: Directory dove salvare le immagini scaricate
-        @max_posts [20]: Numero massimo di immagini da scaricare
+        Parameters
+        ----------
+        ig_profile: instaloader.Profile
+            Instagram profile to retrieve posts from
+        save_dir: int
+            Directory where to save the downloaded images
+        max_posts: int
+            Maximum number of images to download
+            Deafult 20
 
-        Return:
-        True se le immagini sono state scaricate, False altrimenti
-        '''
+        Return
+        ------
+        bool
+            True if the images have been downloaded, False otherwise
+        """
 
         # Check if the client is blocked
         global _anonymous_client_blocked
         if _anonymous_client_blocked and not self.is_logged:
-            ex = exceptions.TooManyRequests('Too many requests for the anonymous Instagram client')
+            ex = exceptions.TooManyRequests(MESSAGE_TOO_MANY_REQUESTS_ANONYMOUS)
             self._manage_error(TOO_MANY_ANON_REQUESTS, ex)
 
         # Check if the logged client is blocked
         if self.is_blocked:
-            ex = exceptions.InstagramClientBlocked('Instagram client has been blocked, please try again in a few hours')
+            ex = exceptions.InstagramClientBlocked(MESSAGE_CLIENT_BLOCKED)
             self._manage_error(CLIENT_BLOCKED, ex)
             return []
 
-        # Ottiene l'elenco dei post
+        # Get the list of posts
         try: post_list = ig_profile.get_posts()
         except PrivateProfileNotFollowedException as ex:
             self._manage_error(PRIVATE_PROFILE_NOT_FOLLOWED, ex)
@@ -358,11 +442,11 @@ class ig_scraper:
         except ConnectionException as ex:
             if 'redirected to login' in str(ex):
                 _anonymous_client_blocked = True
-                ex = exceptions.TooManyRequests('Too many requests for the anonymous Instagram client')
+                ex = exceptions.TooManyRequests(MESSAGE_TOO_MANY_REQUESTS_ANONYMOUS)
                 self._manage_error(TOO_MANY_ANON_REQUESTS, ex)
                 return self.download_post_images(ig_profile, save_dir, max_posts)
             elif '429 Too Many Requests' in str(ex) and self.is_logged:
-                ex = exceptions.TooManyRequests('Too many requests for the Instagram client')
+                ex = exceptions.TooManyRequests(MESSAGE_TOO_MANY_REQUESTS_LOGGED)
                 self._manage_error(TOO_MANY_REQUESTS, ex)
                 return None
             else:
@@ -373,14 +457,14 @@ class ig_scraper:
             return False
 
         try:
-            # Elimina i video dai post
+            # Delete videos from posts
             post_list = [post for post in post_list if not post.is_video]
 
-            # Limita il numero di post da scaricare
+            # Limit the number of posts to download
             if len(post_list) > max_posts:
                 post_list = post_list[:max_posts]
 
-            # Scarica le foto
+            # Download the photos
             post_index = 0
             for post in post_list:
                 try:
@@ -393,94 +477,103 @@ class ig_scraper:
         except ConnectionException as ex:
             if 'redirected to login' in str(ex):
                 _anonymous_client_blocked = True
-                ex = exceptions.TooManyRequests('Too many requests for the anonymous Instagram client')
+                ex = exceptions.TooManyRequests(MESSAGE_TOO_MANY_REQUESTS_ANONYMOUS)
                 self._manage_error(TOO_MANY_ANON_REQUESTS, ex)
                 return self.download_post_images(ig_profile, save_dir, max_posts)
             elif '429 Too Many Requests' in str(ex) and self.is_logged:
-                ex = exceptions.TooManyRequests('Too many requests for the Instagram client')
+                ex = exceptions.TooManyRequests(MESSAGE_TOO_MANY_REQUESTS_LOGGED)
                 self._manage_error(TOO_MANY_REQUESTS, ex)
                 return None
             else:
                 self._manage_error(DOWNLOAD_IMAGE_ERROR, ex)
                 return None
 
-    def download_profile_photo(self, ig_profile, save_dir):
-        '''
-        Scarica la foto profilo del profilo specificato
+    def download_profile_photo(self, ig_profile:Type[instaloader.Profile], save_dir:str)->bool:
+        """Download the profile photo of the specified Instagram profile
 
-        Params:
-        @ig_profile: Profilo Instagram (Instaloader) di cui recuperare la foto profilo
-        @save_dir: Directory dove salvare la foto profilp
+        Download the image and save it in the directory specified with the name 'profile.jpg'
 
-        Return:
-        True se la foto profilo é stata scaricata, False altrimenti
-        '''
+        Parameters
+        ----------
+        ig_profile: instaloader.Profile
+            Instagram profile to retrieve the profile photo
+        save_dir: int
+            Directory where to save the profile photo
+
+        Return
+        ------
+        bool
+            True if the image has been downloaded, False otherwise
+        """
 
         # Check if the client is blocked
         global _anonymous_client_blocked
         if _anonymous_client_blocked and not self.is_logged:
-            ex = exceptions.TooManyRequests('Too many requests for the anonymous Instagram client')
+            ex = exceptions.TooManyRequests(MESSAGE_TOO_MANY_REQUESTS_ANONYMOUS)
             self._manage_error(TOO_MANY_ANON_REQUESTS, ex)
 
         # Check if the logged client is blocked
         if self.is_blocked:
-            ex = exceptions.InstagramClientBlocked('Instagram client has been blocked, please try again in a few hours')
+            ex = exceptions.InstagramClientBlocked(MESSAGE_CLIENT_BLOCKED)
             self._manage_error(CLIENT_BLOCKED, ex)
-            return []
+            return False
 
-        # Ottiene la foto profilo e la salva nella cartella specificata
+        # Get the profile photo and save it in the specified folder
         try:
             self._ig_client.download_pic(
-                filename=os.path.join(
-                    save_dir,
-                    'profile.jpg'),
+                filename=os.path.join(save_dir,'profile.jpg'),
                 url=ig_profile.profile_pic_url,
                 mtime=datetime.datetime.now())
             return True
         except ConnectionException as ex:
             if 'redirected to login' in str(ex):
                 _anonymous_client_blocked = True
-                ex = exceptions.TooManyRequests('Too many requests for the anonymous Instagram client')
+                ex = exceptions.TooManyRequests(MESSAGE_TOO_MANY_REQUESTS_ANONYMOUS)
                 self._manage_error(TOO_MANY_ANON_REQUESTS, ex)
                 return self.download_profile_photo(ig_profile, save_dir)
             elif '429 Too Many Requests' in str(ex) and self.is_logged:
-                ex = exceptions.TooManyRequests('Too many requests for the Instagram client')
+                ex = exceptions.TooManyRequests(MESSAGE_TOO_MANY_REQUESTS_LOGGED)
                 self._manage_error(TOO_MANY_REQUESTS, ex)
-                return None
+                return None # TODO
             else:
                 self._manage_error(DOWNLOAD_IMAGE_ERROR, ex)
-                return None
+                return None # TODO
         except Exception as ex:
             self._manage_error(DOWNLOAD_IMAGE_ERROR, ex)
             return False
 
-    def get_location_history(self, ig_profile):
-        '''
-        Ottiene tutti i geotag dei post per uno specifico profilo Instagram.
-        E' necessario essere loggati per usare questa funzione.
+    def get_location_history(self, ig_profile:Type[instaloader.Profile])->List[location.location]:
+        """Get all post geotags for a specific Instagram profile
 
-        Params:
-        @ig_profile: Profilo Instagram (Instaloader) di cui recuperare i geotag
+        You need to be logged in to use this function
+        If no location has been found or errors occur, an empty list is returned
 
-        Return:
-        Lista di localitá (classes.location) individuate
-        '''
+        Parameters
+        ----------
+        ig_profile: instaloader.Profile
+            Instagram profile to retrieve the geotags from
 
-        # Variabili locali
+        Return
+        ------
+        List
+            List of locations identified
+        """
+
+        # Local variables
         locations_list = []
 
-        # E' necessario essere loggati per usare questa funzione
+        # You need to be logged in to use this function
         if not self.is_logged:
             self._manage_error(USER_NOT_LOGGED, None)
             return []
 
         # Check if the logged client is blocked
         if self.is_blocked:
-            ex = exceptions.InstagramClientBlocked('Instagram client has been blocked, please try again in a few hours')
+            ex = exceptions.InstagramClientBlocked(MESSAGE_CLIENT_BLOCKED)
             self._manage_error(CLIENT_BLOCKED, ex)
             return []
 
-        # Ottiene l'elenco dei post del profilo Instagram
+        # Get the list of Instagram profile posts
         try:
             post_list = ig_profile.get_posts()
         except PrivateProfileNotFollowedException as ex:
@@ -490,21 +583,20 @@ class ig_scraper:
             self._manage_error(CLIENT_GENERIC_ERROR, ex)
             return []
 
-        # Salva i geotag dei media selezionati
-        post_with_location = [
-            post for post in post_list if post.location is not None]
+        # Save the geotags of the selected media
+        post_with_location = [post for post in post_list if post.location is not None]
         for post in post_with_location:
             loc = location.location()
-            # Ottiene la locazione dalle coordinate
+
+            # Get location from coordinates
             if post.location.lat is not None and post.location.lng is not None:
-                loc.from_coordinates(
-                    post.location.lat, post.location.lng, post.date_utc)
+                loc.from_coordinates(post.location.lat, post.location.lng, post.date_utc)
                 locations_list.append(loc)
             elif post.location.name is not None:
                 loc.from_name(post.location.name, post.date_utc)
                 if loc.is_valid: locations_list.append(loc)
 
-        # Ordina la lista dalla locazione più recente a quella meno recente
+        # Sorts the list from the most recent to the least recent location
         locations_list.sort(key=lambda loc: loc.utc_time, reverse=True)
 
         if self._logger is not None:
@@ -515,9 +607,7 @@ class ig_scraper:
         return locations_list
 
     def terminate(self):
-        '''
-        Termina il client e resetta le variabili
-        '''
+        """Terminate the client and reinitialize the variables"""
 
         if not self.is_initialized:
             return
@@ -528,15 +618,15 @@ class ig_scraper:
         if self._logger is not None:
             self._logger.info('ig_scraper successfully closed')
 
-    def login_anonymously(self):
-        '''
-        Esegue il login a Instagram in maniera anonima
+    def login_anonymously(self)->bool:
+        """Log in to Instagram anonymously
 
-        Return:
-        True se la connessione é avvenuta con successo, False altrimenti
-        '''
+        Return
+        ------
+            True if the connection was successful, False otherwise
+        """
 
-        # Se é giá istanziato termina l'oggetto e lo ricrea
+        # If it is already instantiated, end the object and recreate it
         if self.is_initialized:
             self.terminate()
 
@@ -547,19 +637,23 @@ class ig_scraper:
             return True
         else: return False
 
-    def login(self, username, password):
-        '''
-        Esegue il login a Instagram usando le credenziali
+    def login(self, username:str, password:str)->bool:
+        """Log in to Instagram using your credentials
 
-        Params:
-        @username: Nome utente dell'account Instagram a cui connettersi
-        @password: Password dell'account Instagram a cui connettersi
+        Parameters
+        ----------
+        username: str
+            Username of the Instagram account to connect to
+        username: str
+            Password of the Instagram account to connect to
 
-        Return:
-        True se la connessione é avvenuta con successo, False altrimenti
-        '''
+        Return
+        ------
+        bool
+            True if the connection was successful, False otherwise
+        """
 
-        # Se è già istanziato termina l'oggetto e lo ricrea
+        # If it is already instantiated, end the object and recreate it
         if self.is_initialized:
             self.terminate()
 

@@ -8,13 +8,13 @@ class phone:
 
     Attributes
     ----------
-    number : str
+    number: str
         Telephone number
-    carrier : str
+    carrier: str
         Original telephone operator name of the number
-    geolocation : str
+    geolocation: str
         Country to which the number belongs
-    timezone : str
+    timezone: str
         Timezone of the country where the phone is used
     """
 
@@ -22,13 +22,13 @@ class phone:
         """
         Parameters
         ----------
-        phone_number : str
+        phone_number: str
             Telephone number for which to obtain information
         """
-        self.number = None
-        self.carrier = None
-        self.geolocation = None
-        self.timezone = None
+        self.number:str = None
+        self.carrier:str = None
+        self.geolocation:str = None
+        self.timezone:str = None
 
         # If not present, add the + for the international prefix (avoid exceptions)
         if not '+' in phone_number:
