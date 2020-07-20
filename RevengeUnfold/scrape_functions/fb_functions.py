@@ -8,8 +8,6 @@ import pickle
 from typing import Type, List
 
 ############### External Modules Imports ###############
-from random_user_agent.user_agent import UserAgent
-from random_user_agent.params import SoftwareName, OperatingSystem
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
@@ -22,7 +20,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 ############### Local Modules Imports ###############
 from classes.profiles import facebook_profile
-from classes import phone, location, proxy
+from classes import phone, location
 from scrape_functions import scraper_error, exceptions
 import generic
 
