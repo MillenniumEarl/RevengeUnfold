@@ -302,7 +302,7 @@ def _scrape_telegram(people, save_people_dir, image_dir):
                 tg_profiles_list.append(tg_profile)
 
     # Se non ci sono profili ritorna evitando di creare un instanta Telethon
-    if not len(tg_profiles_list) > 0:
+    if len(tg_profiles_list) <= 0:
         return
 
     # Scarica le immagini
