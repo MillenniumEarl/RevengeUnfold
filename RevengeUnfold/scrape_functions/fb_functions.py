@@ -678,8 +678,7 @@ class fb_scraper:
             # Value not found, possible change in Facebook URL structure
             if index_question_mark == -1:
                 continue
-            else:
-                username = username[:index_question_mark]
+            username = username[:index_question_mark]
 
             # Possible standard user? However it should be ignored
             if 'profile.php' in usernames:

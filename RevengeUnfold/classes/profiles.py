@@ -180,8 +180,7 @@ class base_profile:
             face_encodings = face_recognition.face_encodings(image)
             if len(face_encodings) == 0:
                 continue  # No faces identified
-            else:
-                self._face_encodings.extend(face_encodings)
+            self._face_encodings.extend(face_encodings)
 
     def _elaborate_perceptual_hash_media(self, image_dir: str):
         """Processes the perceptual hashes for the images in the folder passed by parameter

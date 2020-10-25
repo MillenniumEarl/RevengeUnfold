@@ -149,10 +149,10 @@ def visualize_result():
         if not selected_index.isdigit():
             print(colored('[ERROR]', 'red') + ' You must enter a number')
             continue
-        elif not 1 < selected_index < len(people_profiles):
+        if not 1 < selected_index < len(people_profiles):
             print(colored('[ERROR]', 'red') + ' You must enter a number between 1 and {}'.format(len(people_profiles)))
             continue
-        elif selected_index == 0:
+        if selected_index == 0:
             print(colored('[SYSTEM]', 'green') + ' Closing visualizer')
             exit_bool = True
             continue
