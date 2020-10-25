@@ -1,4 +1,5 @@
 ############### Standard Imports ###############
+import sys
 from datetime import datetime
 from glob import glob
 import logging
@@ -37,7 +38,7 @@ def _end_program():
           ' Application termination for user interruption')
     _scrape_logger.info('Application termination for user interruption')
     # Termina l'applicazione
-    exit(0)
+    sys.exit(0)
 
 
 def _keyboard_interrupt_handler(rcv_signal, frame):  # noeq
@@ -302,7 +303,7 @@ def _scrape_telegram(people, save_people_dir, image_dir):
                 tg_profiles_list.append(tg_profile)
 
     # Se non ci sono profili ritorna evitando di creare un instanta Telethon
-    if not len(tg_profiles_list) > 0:
+    if len(tg_profiles_list) <= 0:
         return
 
     # Scarica le immagini
