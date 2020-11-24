@@ -273,8 +273,7 @@ class telegram_profile(base_profile):
             profile = tg_functions.get_profiles(tg_client, userid)
         if profile is None:
             return False  # If the profile corresponding to the indicated data does not exist, return False
-        else:
-            return self.get_profile_from_tg_profile(profile)
+        return self.get_profile_from_tg_profile(profile)
 
     def get_profile_from_username(
             self, username: str, tg_client: Type[tg_functions.TelegramClient] = None) -> bool:

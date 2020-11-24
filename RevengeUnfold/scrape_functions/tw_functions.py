@@ -84,11 +84,10 @@ class tw_scraper:
             if url.lower().startswith('http'):  # Download only HTTP URLs
                 urllib.request.urlretrieve(url, os.path.abspath(save_path))
                 return True
-            else:
-                ex = exceptions.UnexpectedURLValue(
-                    'URL {} is not valid'.format(url))
-                self._manage_error(UNEXPECTED_URL_VALUE, ex)
-                return False
+            ex = exceptions.UnexpectedURLValue(
+                'URL {} is not valid'.format(url))
+            self._manage_error(UNEXPECTED_URL_VALUE, ex)
+            return False
         except Exception as ex:
             self._manage_error(DOWNLOAD_IMAGE_ERROR, ex)
             return False
