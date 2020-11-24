@@ -89,12 +89,10 @@ def get_most_active_users(tg_group, n_active_users=25, message_limit=3000):
             active_users[user_id] = count_messages
 
     # Ordina il dizionario in base al numero di messaggi scritti
-    active_users = {
-        k: v for k,
-        v in sorted(
+    active_users = dict(sorted(
             active_users.items(),
             key=lambda item: item[1],
-            reverse=True)}
+            reverse=True))
     n_items = take(n_active_users, active_users.items())
     return n_items
 

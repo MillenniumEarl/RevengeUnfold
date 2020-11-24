@@ -140,8 +140,7 @@ class base_profile:
             face_encodings = face_recognition.face_encodings(image)
             if len(face_encodings) == 0:
                 continue  # Nessun volto individuato
-            else:
-                self._face_encodings.extend(face_encodings)
+            self._face_encodings.extend(face_encodings)
 
     def _elaborate_perceptual_hash_media(self, image_dir):
         '''
@@ -214,8 +213,7 @@ class telegram_profile(base_profile):
             profile = tg_functions.get_profiles(tg_client, userid)
         if profile is None:
             return False  # Se non esiste il profilo corrispondente ai dati indicati ritorna False
-        else:
-            self.get_profile_from_tg_profile(profile)
+        self.get_profile_from_tg_profile(profile)
         return True
 
     def get_profile_from_username(self, username, tg_client=None):
@@ -367,9 +365,8 @@ class instagram_profile(base_profile):
 
         if profile is None:
             return False  # Se non esiste il profilo corrispondente ai dati indicati ritorna False
-        else:
-            self.get_profile_from_ig_profile(profile)
-            return True
+        self.get_profile_from_ig_profile(profile)
+        return True
 
     def download_photos(self, ig_scraper, save_dir):
         '''

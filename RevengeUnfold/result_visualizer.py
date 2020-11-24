@@ -101,9 +101,8 @@ def visualize_result():
         if save_path == '':
             print(colored('[ERROR]', 'red') + ' You must select a file to continue')
             return
-        else:
-            _export_to_csv(profiles, save_path)
-            print(colored('[SYSTEM]', 'green') + ' Profiles exported correctly')
+        _export_to_csv(profiles, save_path)
+        print(colored('[SYSTEM]', 'green') + ' Profiles exported correctly')
 
     # Stampa i profili
     for profile in profiles:

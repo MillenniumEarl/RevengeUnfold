@@ -206,7 +206,8 @@ class person:
 
         return identifiability
 
-    def find_telegram_profile(self):
+    @staticmethod
+    def find_telegram_profile():
         '''
         In base ai dati che possiede ricerca il profilo Telegram della persona
 
@@ -232,7 +233,7 @@ class person:
         possibile_profiles = []
 
         # Ottiene i dati da usare nella ricerca
-        search_data = self._prepare_search_data([k for k in custom_keywords])
+        search_data = self._prepare_search_data(list(custom_keywords))
 
         # Ricerca per nomi utenti
         for username in search_data['usernames_list']:
@@ -291,7 +292,7 @@ class person:
         possibile_profiles = []
 
         # Ottiene i dati da usare nella ricerca
-        search_data = self._prepare_search_data([k for k in custom_keywords])
+        search_data = self._prepare_search_data(list(custom_keywords))
 
         # Ricerca per parole chiave, è inutile ricercare per nome utente perchè
         # viene definito da Facebook e non dalla persona
@@ -345,7 +346,7 @@ class person:
         possibile_profiles = []
 
         # Ottiene i dati da usare nella ricerca
-        search_data = self._prepare_search_data([k for k in custom_keywords])
+        search_data = self._prepare_search_data(list(custom_keywords))
 
         # Ricerca per nomi utenti
         for username in search_data['usernames_list']:

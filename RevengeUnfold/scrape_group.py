@@ -5,6 +5,7 @@ import logging
 import os
 import pickle
 import signal
+import sys
 import tkinter as tk
 from tkinter import filedialog
 
@@ -36,7 +37,7 @@ def _end_program():
           ' Application termination for user interruption')
     _scrape_logger.info('Application termination for user interruption')
     # Termina l'applicazione
-    exit(0)
+    sys.exit(0)
 
 
 def _keyboard_interrupt_handler(rcv_signal, frame):  # noeq
@@ -292,7 +293,7 @@ def _scrape_telegram(people, save_people_dir, image_dir):
                 tg_profiles_list.append(tg_profile)
 
     # Se non ci sono profili ritorna evitando di creare un instanta Telethon
-    if not len(tg_profiles_list) > 0: return
+    if len(tg_profiles_list) <= 0: return
 
     # Scarica le immagini
     with tg_functions.connect_telegram_client(password_manager.tg_phone, password_manager.tg_api_id, password_manager.tg_api_hash) as tg_client:
