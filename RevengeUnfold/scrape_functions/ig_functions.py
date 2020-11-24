@@ -272,7 +272,7 @@ class ig_scraper:
         try:
             # Get similar profiles
             ig_profiles = ig_profile.get_similar_accounts()
-            ig_profiles = [profile for profile in ig_profiles]
+            ig_profiles = list(ig_profiles)
 
             # Limit the number of profiles
             if len(ig_profiles) > max_profiles:
@@ -396,7 +396,7 @@ class ig_scraper:
             # Search for profiles
             results = instaloader.TopSearchResults(
                 self._ig_client.context, keyword)
-            ig_profiles = [profile for profile in results.get_profiles()]
+            ig_profiles = list(results.get_profiles())
 
             # Limit the number of profiles
             if len(ig_profiles) > max_profiles:

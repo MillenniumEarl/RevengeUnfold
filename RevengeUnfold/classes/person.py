@@ -110,7 +110,7 @@ class person:
                                for p in self.profiles]
         keywords_tuple_list.append((self.first_name, self.last_name))
         keywords_tuple_list = list(
-            {t for t in keywords_tuple_list})  # Set comprehension
+            set(keywords_tuple_list))  # Set comprehension
 
         # Combine additional keywords into one value
         if custom_keywords is None:
@@ -213,7 +213,7 @@ class person:
         possibile_profiles = []
 
         # Get the data to use in the search
-        search_data = self._prepare_search_data([k for k in custom_keywords])
+        search_data = self._prepare_search_data(list(custom_keywords))
 
         # Search user by keywords, it is useless to search by username because
         # it is defined by Facebook and not by the person
@@ -273,7 +273,7 @@ class person:
         possibile_profiles = []
 
         # Gets the data to be used in the search
-        search_data = self._prepare_search_data([k for k in custom_keywords])
+        search_data = self._prepare_search_data(list(custom_keywords))
 
         # Search for usernames
         for username in search_data['usernames_list']:
@@ -345,7 +345,7 @@ class person:
         possibile_profiles = []
 
         # Gets the data to be used in the search
-        search_data = self._prepare_search_data([k for k in custom_keywords])
+        search_data = self._prepare_search_data(list(custom_keywords))
 
         # Search for usernames
         for username in search_data['usernames_list']:
