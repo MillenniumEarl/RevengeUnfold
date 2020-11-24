@@ -257,8 +257,9 @@ class fb_scraper:
 
         return True
 
+    @staticmethod
     def _wait_for_correct_current_url(
-            self, driver: webdriver, desired_url: str, timeout: int = 10) -> bool:
+            driver: webdriver, desired_url: str, timeout: int = 10) -> bool:
         """Waits for a Web Driver to load a specific URL
 
         Parameters

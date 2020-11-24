@@ -313,7 +313,8 @@ class person:
             return best_match
         return 0
 
-    def find_telegram_profile(self) -> int:
+    @staticmethod
+    def find_telegram_profile() -> int:
         """Based on the person's data, search for the person's Telegram profile
 
                 Return
