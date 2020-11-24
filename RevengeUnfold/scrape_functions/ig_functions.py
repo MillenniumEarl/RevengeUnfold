@@ -343,14 +343,13 @@ class ig_scraper:
                     MESSAGE_TOO_MANY_REQUESTS_ANONYMOUS)
                 self._manage_error(TOO_MANY_ANON_REQUESTS, ex)
                 return self.find_user_by_username(username)
-            elif '429 Too Many Requests' in str(ex) and self.is_logged:
+            if '429 Too Many Requests' in str(ex) and self.is_logged:
                 ex = exceptions.TooManyRequests(
                     MESSAGE_TOO_MANY_REQUESTS_LOGGED)
                 self._manage_error(TOO_MANY_REQUESTS, ex)
                 return None
-            else:
-                self._manage_error(CLIENT_GENERIC_ERROR, ex)
-                return None
+            self._manage_error(CLIENT_GENERIC_ERROR, ex)
+            return None
         except Exception as ex:
             self._manage_error(CLIENT_GENERIC_ERROR, ex)
             return None
@@ -420,14 +419,13 @@ class ig_scraper:
                     MESSAGE_TOO_MANY_REQUESTS_ANONYMOUS)
                 self._manage_error(TOO_MANY_ANON_REQUESTS, ex)
                 return self.find_users_by_keywords(keywords, max_profiles)
-            elif '429 Too Many Requests' in str(ex) and self.is_logged:
+            if '429 Too Many Requests' in str(ex) and self.is_logged:
                 ex = exceptions.TooManyRequests(
                     MESSAGE_TOO_MANY_REQUESTS_LOGGED)
                 self._manage_error(TOO_MANY_REQUESTS, ex)
                 return None
-            else:
-                self._manage_error(CLIENT_GENERIC_ERROR, ex)
-                return []
+            self._manage_error(CLIENT_GENERIC_ERROR, ex)
+            return []
         except Exception as ex:
             self._manage_error(CLIENT_GENERIC_ERROR, ex)
             return []
@@ -479,14 +477,13 @@ class ig_scraper:
                 self._manage_error(TOO_MANY_ANON_REQUESTS, ex)
                 return self.download_post_images(
                     ig_profile, save_dir, max_posts)
-            elif '429 Too Many Requests' in str(ex) and self.is_logged:
+            if '429 Too Many Requests' in str(ex) and self.is_logged:
                 ex = exceptions.TooManyRequests(
                     MESSAGE_TOO_MANY_REQUESTS_LOGGED)
                 self._manage_error(TOO_MANY_REQUESTS, ex)
                 return None
-            else:
-                self._manage_error(CLIENT_GENERIC_ERROR, ex)
-                return None
+            self._manage_error(CLIENT_GENERIC_ERROR, ex)
+            return None
         except Exception as ex:
             self._manage_error(CLIENT_GENERIC_ERROR, ex)
             return False
@@ -519,14 +516,13 @@ class ig_scraper:
                 self._manage_error(TOO_MANY_ANON_REQUESTS, ex)
                 return self.download_post_images(
                     ig_profile, save_dir, max_posts)
-            elif '429 Too Many Requests' in str(ex) and self.is_logged:
+            if '429 Too Many Requests' in str(ex) and self.is_logged:
                 ex = exceptions.TooManyRequests(
                     MESSAGE_TOO_MANY_REQUESTS_LOGGED)
                 self._manage_error(TOO_MANY_REQUESTS, ex)
                 return None
-            else:
-                self._manage_error(DOWNLOAD_IMAGE_ERROR, ex)
-                return None
+            self._manage_error(DOWNLOAD_IMAGE_ERROR, ex)
+            return None
 
     def download_profile_photo(
             self, ig_profile: Type[instaloader.Profile], save_dir: str) -> bool:
@@ -574,14 +570,13 @@ class ig_scraper:
                     MESSAGE_TOO_MANY_REQUESTS_ANONYMOUS)
                 self._manage_error(TOO_MANY_ANON_REQUESTS, ex)
                 return self.download_profile_photo(ig_profile, save_dir)
-            elif '429 Too Many Requests' in str(ex) and self.is_logged:
+            if '429 Too Many Requests' in str(ex) and self.is_logged:
                 ex = exceptions.TooManyRequests(
                     MESSAGE_TOO_MANY_REQUESTS_LOGGED)
                 self._manage_error(TOO_MANY_REQUESTS, ex)
                 return None  # TODO
-            else:
-                self._manage_error(DOWNLOAD_IMAGE_ERROR, ex)
-                return None  # TODO
+            self._manage_error(DOWNLOAD_IMAGE_ERROR, ex)
+            return None  # TODO
         except Exception as ex:
             self._manage_error(DOWNLOAD_IMAGE_ERROR, ex)
             return False
@@ -687,8 +682,7 @@ class ig_scraper:
                 self._logger.info(
                     'Anonymous Instagram client instanced correctly')
             return True
-        else:
-            return False
+        return False
 
     def login(self, username: str, password: str) -> bool:
         """Log in to Instagram using your credentials
@@ -717,5 +711,4 @@ class ig_scraper:
                 self._logger.info(
                     'Instagram client correctly started (user {})'.format(generic.only_ASCII(username)))
             return True
-        else:
-            return False
+        return False

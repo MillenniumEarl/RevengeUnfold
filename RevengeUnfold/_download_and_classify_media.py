@@ -38,8 +38,7 @@ def get_faces_from_images(image_path):
     face_encodings = face_recognition.face_encodings(image)
     if len(face_encodings) == 0:
         return  # Nessun volto individuato
-    else:
-        return_dict['faces'] = face_encodings
+    return_dict['faces'] = face_encodings
     print()
 
 
