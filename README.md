@@ -1,6 +1,5 @@
 # RevengeUnfold
 [![DeepSource](https://deepsource.io/gh/MillenniumEarl/RevengeUnfold.svg/?label=active+issues&show_trend=true)](https://deepsource.io/gh/MillenniumEarl/RevengeUnfold/?ref=repository-badge)
-[![Code Quality Score](https://www.code-inspector.com/project/9565/score/svg)](https://frontend.code-inspector.com/public/project/9565/RevengeUnfold/dashboard)
 [![Known Vulnerabilities](https://snyk.io/test/github/MillenniumEarl/RevengeUnfold/badge.svg?targetFile=RevengeUnfold/requirements.txt)](https://snyk.io/test/github/MillenniumEarl/RevengeUnfold?targetFile=RevengeUnfold/requirements.txt)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FMillenniumEarl%2FRevengeUnfold.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FMillenniumEarl%2FRevengeUnfold?ref=badge_shield)
 
