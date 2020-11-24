@@ -120,7 +120,7 @@ class ig_scraper:
         try:
             # Ottiene i profili simili
             profiles = ig_profile.get_similar_accounts()
-            profiles = [profile for profile in profiles]
+            profiles = list(profiles)
             if self._logger is not None:
                 self._logger.info(
                     'Found {} profiles similar to {}'.format(
@@ -178,7 +178,7 @@ class ig_scraper:
             # Ricerca i profili
             results = instaloader.TopSearchResults(
                 self._ig_client.context, keyword)
-            profiles = [profile for profile in results.get_profiles()]
+            profiles = list(results.get_profiles())
 
             # Limita il numero di profili
             if len(profiles) > max_profiles:
@@ -370,5 +370,4 @@ class ig_scraper:
                 self._logger.info(
                     'Instagram client correctly started (user {})'.format(generic.only_ASCII(username)))
             return True
-        else:
-            return False
+        return False
