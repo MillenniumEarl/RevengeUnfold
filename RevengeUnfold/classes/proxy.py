@@ -15,8 +15,7 @@ class proxy:
             if not 'http' in self.proxy:
                 self.proxy = None
             return self.proxy
-        else:
-            self.proxy = FreeProxy(rand=rand).get()
-            if not 'http' in self.proxy:
-                self.proxy = None
-            return self.proxy
+        self.proxy = FreeProxy(rand=rand).get()
+        if not 'http' in self.proxy:
+            self.proxy = None
+        return self.proxy
