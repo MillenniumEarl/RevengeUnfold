@@ -12,6 +12,6 @@ selenium==3.141.0
 telethon==1.15.0
 tqdm==4.48.0
 twitter-scraper==0.4.4
-webdriver_manager==3.2.1
+webdriver_manager==3.2.2
 random_user_agent==1.0.1
 free-proxy==1.0.1
