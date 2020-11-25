@@ -7,6 +7,6 @@ version: 2
 updates:
   - package-ecosystem: "pip" # See documentation for possible values
     directory: "/RevengeUnfold" # Location of package manifests
-    target-branch: "dev"
+    target-branch: "dev_branch"
     schedule:
       interval: "daily"
