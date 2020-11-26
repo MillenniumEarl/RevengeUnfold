@@ -14,4 +14,4 @@ telethon==1.17.5
 twitter-scraper==0.4.4
 webdriver_manager==3.2.2
 random_user_agent==1.0.1
-free-proxy==1.0.1
+free-proxy==1.0.2
