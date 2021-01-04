@@ -9,7 +9,7 @@ phonenumbers==8.12.15
 photohash==0.4.1
 Pillow==8.0.1
 selenium==3.141.0
-tqdm==4.55.0
+tqdm==4.55.1
 telethon==1.18.2
 twitter-scraper==0.4.4
 webdriver_manager==3.2.2
