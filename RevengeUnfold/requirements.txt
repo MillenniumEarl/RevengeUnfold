@@ -7,7 +7,7 @@ geopy==2.0.0
 instaloader==4.5.3
 phonenumbers==8.12.13
 photohash==0.4.1
-Pillow==8.0.1
+Pillow==8.1.0
 selenium==3.141.0
 telethon==1.17.5
 tqdm==4.53.0
